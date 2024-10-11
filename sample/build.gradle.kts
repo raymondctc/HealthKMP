@@ -5,6 +5,7 @@ plugins {
     kotlin("native.cocoapods")
     id("com.android.library")
     id("org.jetbrains.compose")
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 kotlin {
@@ -31,13 +32,13 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation("com.vitoksmile.health-kmp:core:0.0.3")
-                api("dev.gitlive:firebase-analytics:2.1.0")
-                api("dev.gitlive:firebase-auth:2.1.0")
-                api("dev.gitlive:firebase-firestore:2.1.0")
+                api(project.dependencies.platform("io.github.tweener:kmp-bom:2.0.4")) // Mandatory
+                api("io.github.tweener:kmp-firebase")
 
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.material)
+                implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
             }
@@ -76,9 +77,13 @@ android {
         minSdk = (findProperty("android.minSdk") as String).toInt()
         targetSdk = (findProperty("android.targetSdk") as String).toInt()
     }
+    dependencies {
+        coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.2")
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlin {
         jvmToolchain(17)
