@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "233233604356",
+    "project_id": "ninegag-move-test",
+    "storage_bucket": "ninegag-move-test.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:233233604356:android:4997bbdf17b0a26852fa51",
+        "android_client_info": {
+          "package_name": "com.ninegag.move.app.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBiLm-LAectRAH0p2iuBKGPDocrHnaiyTs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
