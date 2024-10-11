@@ -15,7 +15,7 @@ kotlin {
                 implementation("com.vitoksmile.health-kmp:koin:0.0.3")
                 implementation(project(":sample"))
 
-                implementation("androidx.activity:activity-compose:1.7.2")
+                implementation("androidx.activity:activity-compose:1.9.2")
             }
         }
     }

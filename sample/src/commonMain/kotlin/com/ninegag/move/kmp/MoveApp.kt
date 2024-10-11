@@ -1,4 +1,4 @@
-package com.vitoksmile.kmp.health.sample
+package com.ninegag.move.kmp
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -40,9 +40,8 @@ import kotlinx.datetime.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 
-@Deprecated("Moved to KMP")
 @Composable
-fun SampleApp() {
+fun MoveApp() {
     val coroutineScope = rememberCoroutineScope()
     val health = remember { HealthManagerFactory().createManager() }
 
@@ -83,7 +82,7 @@ fun SampleApp() {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text("Hello, this is HealthKMP for ${getPlatformName()}")
+            Text("Hello, this is HealthKMP for ${com.vitoksmile.kmp.health.sample.getPlatformName()}")
 
             isAvailableResult
                 .onSuccess { isAvailable ->
@@ -241,5 +240,4 @@ fun SampleApp() {
     }
 }
 
-@Deprecated("Moved to KMP")
 expect fun getPlatformName(): String
