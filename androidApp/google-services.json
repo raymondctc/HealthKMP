@@ -12,7 +12,20 @@
           "package_name": "com.ninegag.move.app.dev"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "233233604356-b6gsgsfv69vitodrhamttfd8asdqm7i4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ninegag.move.app.dev",
+            "certificate_hash": "5bcbe40ffac274d18f48e4aa7e1ab7086ce1ae22"
+          }
+        },
+        {
+          "client_id": "233233604356-atbu1ckn6uh00dj87ufch6a7s30u9mas.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBiLm-LAectRAH0p2iuBKGPDocrHnaiyTs"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "233233604356-atbu1ckn6uh00dj87ufch6a7s30u9mas.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
