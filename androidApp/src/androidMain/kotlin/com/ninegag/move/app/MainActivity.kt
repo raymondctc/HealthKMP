@@ -1,4 +1,4 @@
-package com.vitoksmile.kmp.health
+package com.ninegag.move.app
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -8,7 +8,6 @@ import com.vitoksmile.kmp.health.sample.SampleApp
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContent {
             SampleApp()
         }

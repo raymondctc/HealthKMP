@@ -31,6 +31,8 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation("com.vitoksmile.health-kmp:core:0.0.3")
+                implementation("dev.gitlive:firebase-auth:2.1.0")
+                implementation("dev.gitlive:firebase-firestore:2.1.0")
 
                 implementation(compose.runtime)
                 implementation(compose.foundation)
@@ -64,7 +66,7 @@ kotlin {
 
 android {
     compileSdk = (findProperty("android.compileSdk") as String).toInt()
-    namespace = "com.vitoksmile.kmp.health.sample"
+    namespace = "com.ninegag.move.app"
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     sourceSets["main"].res.srcDirs("src/androidMain/res")

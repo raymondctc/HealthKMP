@@ -1,4 +1,4 @@
-package com.vitoksmile.kmp.health
+package com.ninegag.move.app
 
 import android.app.Application
 import com.vitoksmile.kmp.health.koin.attachHealthKMP
@@ -6,15 +6,15 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 
-class HealthApplication : Application() {
+class MainApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
 
         startKoin {
-            androidContext(this@HealthApplication)
+            androidContext(this@MainApplication)
             androidLogger()
-            attachHealthKMP(this@HealthApplication)
+            attachHealthKMP(this@MainApplication)
         }
     }
 }
