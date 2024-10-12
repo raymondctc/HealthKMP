@@ -13,9 +13,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.ninegag.move.kmp.MainViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun MoveApp() {
+fun MoveApp(
+    viewModel: MainViewModel = viewModel { MainViewModel() }
+) {
     MaterialTheme {
         Column(
             modifier = Modifier.fillMaxSize()
@@ -29,9 +33,7 @@ fun MoveApp() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Button(
-                    onClick = {
-
-                    }
+                    onClick = viewModel::signIn
                 ) {
                     Text("Sign in")
                 }

@@ -26,6 +26,8 @@ kotlin {
             baseName = "HealthKMPSample"
             isStatic = true
         }
+        pod("FirebaseCore")
+        pod("GoogleSignIn")
     }
 
     sourceSets {

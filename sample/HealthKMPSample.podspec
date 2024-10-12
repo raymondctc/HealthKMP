@@ -9,7 +9,8 @@ Pod::Spec.new do |spec|
     spec.vendored_frameworks      = 'build/cocoapods/framework/HealthKMPSample.framework'
     spec.libraries                = 'c++'
     spec.ios.deployment_target    = '14.1'
-                
+    spec.dependency 'FirebaseCore'
+    spec.dependency 'GoogleSignIn'
                 
     if !Dir.exist?('build/cocoapods/framework/HealthKMPSample.framework') || Dir.empty?('build/cocoapods/framework/HealthKMPSample.framework')
         raise "
