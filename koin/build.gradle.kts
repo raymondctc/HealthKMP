@@ -59,13 +59,13 @@ kotlin {
             dependencies {
                 implementation("com.vitoksmile.health-kmp:core:0.0.3")
 
-                api("io.insert-koin:koin-core:3.4.0")
+                api("io.insert-koin:koin-core:3.5.6")
             }
         }
 
         val androidMain by getting {
             dependencies {
-                api("io.insert-koin:koin-android:3.3.3")
+                api("io.insert-koin:koin-android:3.5.6")
             }
         }
 

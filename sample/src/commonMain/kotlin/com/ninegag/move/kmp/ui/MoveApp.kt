@@ -13,8 +13,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewModelScope
 import com.ninegag.move.kmp.MainViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun MoveApp(
@@ -33,7 +35,11 @@ fun MoveApp(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Button(
-                    onClick = viewModel::signIn
+                    onClick = {
+                        viewModel.viewModelScope.launch {
+                            viewModel.signIn()
+                        }
+                    }
                 ) {
                     Text("Sign in")
                 }

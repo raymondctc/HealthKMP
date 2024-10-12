@@ -36,6 +36,8 @@ kotlin {
                 implementation("com.vitoksmile.health-kmp:core:0.0.3")
                 api(project.dependencies.platform("io.github.tweener:kmp-bom:2.0.4")) // Mandatory
                 api("io.github.tweener:kmp-firebase")
+                api("io.insert-koin:koin-core:3.5.6")
+                api("io.github.aakira:napier:2.7.1")
 
                 implementation(compose.runtime)
                 implementation(compose.foundation)
@@ -48,6 +50,7 @@ kotlin {
 
         val androidMain by getting {
             dependencies {
+                api("io.insert-koin:koin-android:3.5.6")
             }
         }
 
