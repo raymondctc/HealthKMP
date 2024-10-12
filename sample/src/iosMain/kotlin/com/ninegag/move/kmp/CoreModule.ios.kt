@@ -2,13 +2,10 @@ package com.ninegag.move.kmp
 
 import com.tweener.firebase.auth.provider.google.FirebaseGoogleAuthProvider
 import com.tweener.firebase.auth.provider.google.FirebaseGoogleAuthProviderIos
-import org.koin.core.definition.KoinDefinition
 import org.koin.core.module.Module
+import org.koin.dsl.module
 
-actual fun platformGoogleAuthModule(
-    module: Module,
-    serverClientId: String
-): KoinDefinition<FirebaseGoogleAuthProvider> = with(module) {
+actual fun platformGoogleAuthModule(serverClientId: String): Module = module {
     single<FirebaseGoogleAuthProvider> {
         FirebaseGoogleAuthProviderIos(serverClientId = serverClientId)
     }

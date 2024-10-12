@@ -26,9 +26,7 @@ class MainApplication : Application() {
             androidLogger()
             attachHealthKMP(this@MainApplication)
             modules(
-                module {
-                    platformGoogleAuthModule(this, getString(R.string.default_web_client_id))
-                }
+                platformGoogleAuthModule(getString(R.string.default_web_client_id))
             )
         }
     }
