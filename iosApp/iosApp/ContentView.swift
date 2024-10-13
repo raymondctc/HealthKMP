@@ -8,6 +8,7 @@ struct ComposeView: UIViewControllerRepresentable {
 
     init() {
         HealthKMPKoin().start()
+        HealthKMPSample().start()
     }
 
     func makeUIViewController(context: Context) -> UIViewController {
