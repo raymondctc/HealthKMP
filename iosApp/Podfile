@@ -4,6 +4,6 @@ target 'iosApp' do
   pod 'HealthKMP', :path => '../core'
   pod 'HealthKMPKoin', :path => '../koin'
   pod 'HealthKMPSample', :path => '../sample'
-  pod 'FirebaseCore'
-  pod 'FirebaseAuth'
+  pod 'FirebaseCore', '~> 11.2.0'
+  pod 'FirebaseAuth', '~> 11.2.0'
 end
