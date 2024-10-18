@@ -22,7 +22,9 @@ object HealthKMPSample {
             projectId = "ninegag-move-test",
         ))
         startKoin {
-            modules(platformGoogleAuthModule("1:233233604356:ios:95529c1ce0dc7e0752fa51"))
+            modules(
+                platformGoogleAuthModule("1:233233604356:ios:95529c1ce0dc7e0752fa51")
+            )
         }
     }
 

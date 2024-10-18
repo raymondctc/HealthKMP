@@ -10,6 +10,9 @@ import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -22,6 +25,12 @@ import kotlinx.coroutines.launch
 fun MoveApp(
     viewModel: MainViewModel = viewModel { MainViewModel() }
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+    val user = uiState.user
+    LaunchedEffect("init") {
+        viewModel.loadUser()
+    }
+
     MaterialTheme {
         Column(
             modifier = Modifier.fillMaxSize()
@@ -34,15 +43,20 @@ fun MoveApp(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Button(
-                    onClick = {
-                        viewModel.viewModelScope.launch {
-                            viewModel.signIn()
+                if (user != null) {
+                    Text("Hello, ${user.name}")
+                } else {
+                    Button(
+                        onClick = {
+                            viewModel.viewModelScope.launch {
+                                viewModel.signIn()
+                            }
                         }
+                    ) {
+                        Text("Sign in")
                     }
-                ) {
-                    Text("Sign in")
                 }
+
             }
         }
     }
