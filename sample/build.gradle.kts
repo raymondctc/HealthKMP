@@ -22,19 +22,25 @@ kotlin {
         homepage = "https://github.com/vitoksmile/HealthKMP"
         ios.deploymentTarget = "14.1"
         podfile = project.file("../iosApp/Podfile")
-//        pod("FirebaseCore") {
-////            version = "10.18.0"
-//            extraOpts += listOf("-Xforeign-exception-mode", "objc-wrap", "-compiler-option", "-fmodules")
-//        }
-//        pod("FirebaseAuth") {
-////            version = "10.18.0"
-//            extraOpts += listOf("-Xforeign-exception-mode", "objc-wrap", "-compiler-option", "-fmodules")
-//        }
-//        pod("FirebaseAnalytics")
-//        pod("FirebaseFirestore")
         framework {
             baseName = "HealthKMPSample"
             isStatic = true
+        }
+        pod("FirebaseCore") {
+            linkOnly = true
+            version = "11.2.0"
+        }
+        pod("FirebaseAuth") {
+            linkOnly = true
+            version = "11.2.0"
+        }
+        pod("FirebaseFirestore") {
+            linkOnly = true
+            version = "11.2.0"
+        }
+        pod("FirebaseAnalytics") {
+            linkOnly = true
+            version = "11.2.0"
         }
     }
 

@@ -6,4 +6,6 @@ target 'iosApp' do
   pod 'HealthKMPSample', :path => '../sample'
   pod 'FirebaseCore', '~> 11.2.0'
   pod 'FirebaseAuth', '~> 11.2.0'
+  pod 'FirebaseFirestore', '~> 11.2.0'
+  pod 'GoogleSignIn'
 end
