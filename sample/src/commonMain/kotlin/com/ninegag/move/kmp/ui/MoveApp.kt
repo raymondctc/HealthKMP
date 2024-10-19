@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -28,7 +29,7 @@ fun MoveApp(
     val uiState by viewModel.uiState.collectAsState()
     val user = uiState.user
     LaunchedEffect("init") {
-        viewModel.loadUser()
+        viewModel.mayCreateUserDoc()
     }
 
     MaterialTheme {
@@ -45,6 +46,20 @@ fun MoveApp(
             ) {
                 if (user != null) {
                     Text("Hello, ${user.name}")
+                    if (!uiState.isHealthManagerAvailable) {
+                        Text("Sorry, this application is not supported on your device")
+                    }
+                    if (!uiState.isAuthorized) {
+                        Button(
+                            onClick = {
+                                viewModel.viewModelScope.launch {
+                                    viewModel.requestAuthorization()
+                                }
+                            }
+                        ) {
+                            Text("Authorize Health's access")
+                        }
+                    }
                 } else {
                     Button(
                         onClick = {

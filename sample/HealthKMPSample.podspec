@@ -9,8 +9,10 @@ Pod::Spec.new do |spec|
     spec.vendored_frameworks      = 'build/cocoapods/framework/HealthKMPSample.framework'
     spec.libraries                = 'c++'
     spec.ios.deployment_target    = '14.1'
+    spec.dependency 'FirebaseAnalytics', '11.2.0'
     spec.dependency 'FirebaseAuth', '11.2.0'
     spec.dependency 'FirebaseCore', '11.2.0'
+    spec.dependency 'FirebaseFirestore', '11.2.0'
                 
     if !Dir.exist?('build/cocoapods/framework/HealthKMPSample.framework') || Dir.empty?('build/cocoapods/framework/HealthKMPSample.framework')
         raise "
