@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
@@ -20,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import com.ninegag.move.kmp.MainViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ninegag.move.kmp.UiState
 import kotlinx.coroutines.launch
 
 @Composable
@@ -27,53 +29,60 @@ fun MoveApp(
     viewModel: MainViewModel = viewModel { MainViewModel() }
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val user = uiState.user
     LaunchedEffect("init") {
         viewModel.mayCreateUserDoc()
     }
 
     MaterialTheme {
-        Column(
-            modifier = Modifier.fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                if (user != null) {
-                    Text("Hello, ${user.name}")
-                    if (!uiState.isHealthManagerAvailable) {
-                        Text("Sorry, this application is not supported on your device")
-                    }
-                    if (!uiState.isAuthorized) {
-                        Button(
-                            onClick = {
-                                viewModel.viewModelScope.launch {
-                                    viewModel.requestAuthorization()
-                                }
-                            }
-                        ) {
-                            Text("Authorize Health's access")
-                        }
-                    }
-                } else {
-                    Button(
-                        onClick = {
-                            viewModel.viewModelScope.launch {
-                                viewModel.signIn()
-                            }
-                        }
-                    ) {
-                        Text("Sign in")
-                    }
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+            item {
+                Header(viewModel)
+            }
+            uiState.stepsRecord.forEach { (date, count) ->
+                item {
+                    Text(text = "Date=$date, steps count= $count")
                 }
-
             }
         }
     }
 }
 
+@Composable
+fun Header(viewModel: MainViewModel) {
+    val uiState by viewModel.uiState.collectAsState()
+    val user = uiState.user
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        if (user != null) {
+            Text("Hello, ${user.name}")
+            if (!uiState.isHealthManagerAvailable) {
+                Text("Sorry, this application is not supported on your device")
+            }
+            if (!uiState.isAuthorized) {
+                Button(
+                    onClick = {
+                        viewModel.viewModelScope.launch {
+                            viewModel.requestAuthorization()
+                        }
+                    }
+                ) {
+                    Text("Authorize Health's access")
+                }
+            }
+
+        } else {
+            Button(
+                onClick = {
+                    viewModel.viewModelScope.launch {
+                        viewModel.signIn()
+                    }
+                }
+            ) {
+                Text("Sign in")
+            }
+        }
+    }
+}

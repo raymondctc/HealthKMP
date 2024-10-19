@@ -26,15 +26,16 @@ import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.atTime
-import kotlinx.serialization.Serializable
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
 
 data class UiState(
     var user: User? = null,
     val isHealthManagerAvailable: Boolean,
     val isAuthorized: Boolean,
-    val stepsRecord: Map<String, StepsRecord>
+    val stepsRecord: Map<String, Int>
 )
 
 class MainViewModel : ViewModel(), KoinComponent {
@@ -44,6 +45,7 @@ class MainViewModel : ViewModel(), KoinComponent {
     private val healthManager = healthManagerFactory.createManager()
     private val firebaseGoogleAuthProvider: FirebaseGoogleAuthProvider by inject()
     private val firestoreService: FirestoreService by inject()
+    private lateinit var stepsList: Map<String, Int>
 
     private val _uiState = MutableStateFlow(
         UiState(null, isHealthManagerAvailable = false, isAuthorized = false, emptyMap())
@@ -56,11 +58,14 @@ class MainViewModel : ViewModel(), KoinComponent {
             readTypes = readTypes,
             writeTypes = writeTypes
         ).getOrNull() ?: false
+
+        stepsList = getSummedStepsCountListForLastDays(31.days)
+
         _uiState.value = UiState(
             User(it.uid, it.email ?: "", it.displayName ?: ""),
             isHealthManagerAvailable,
             isAuthorized,
-            emptyMap()
+            stepsList
         )
     }
 
@@ -89,24 +94,27 @@ class MainViewModel : ViewModel(), KoinComponent {
             writeTypes = writeTypes
         ).getOrNull() ?: false
 
+        val stepsListMap = if (::stepsList.isInitialized) {
+            stepsList
+        } else {
+            stepsList = getSummedStepsCountListForLastDays(31.days)
+            stepsList
+        }
+
         result.getOrNull()?.also { user ->
             Napier.v { "response, $user" }
-            _uiState.emit(UiState(user, isHealthManagerAvailable, isAuthorized = isAuthorized, emptyMap()))
+            _uiState.emit(
+                UiState(user, isHealthManagerAvailable, isAuthorized = isAuthorized, stepsListMap)
+            )
         }
     }
 
     suspend fun mayCreateUserDoc() {
         val user = loadUser() ?: return
         val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-        val todaysDate = LocalDate(now.year, now.monthNumber, now.dayOfMonth)
-        val start = todaysDate.atStartOfDayIn(TimeZone.currentSystemDefault())
-        val end = todaysDate.atTime(hour = 23, minute = 59, second = 59, nanosecond = 999999999)
-            .toInstant(TimeZone.currentSystemDefault())
-
         val collectionString = "${now.year}${now.monthNumber}${now.dayOfMonth}"
-        val stepList = healthManager.readSteps(start, end)
-        val stepCounts = stepList.getOrDefault(emptyList())
-        val data = mapOf("count" to stepCounts.sumOf { it.count })
+        val stepCounts = getSummedStepsCount()
+        val data = mapOf("count" to stepCounts)
 
         val docString = "${user.email}/${collectionString}/step_count"
 
@@ -126,6 +134,43 @@ class MainViewModel : ViewModel(), KoinComponent {
                 data = data
             )
         }
+    }
+
+    private suspend fun getSummedStepsCountListForLastDays(daysDuration: Duration): Map<String, Int> {
+        val linkedHashMap = LinkedHashMap<String, Int>()
+        for (i in 0..daysDuration.inWholeDays) {
+            val clockNow = Clock.System.now()
+            clockNow.minus(i.days)
+            val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+            val todaysDate = LocalDate(now.year, now.monthNumber, now.dayOfMonth)
+            val start = todaysDate.atStartOfDayIn(TimeZone.currentSystemDefault())
+            val end = todaysDate.atTime(hour = 23, minute = 59, second = 59, nanosecond = 999999999)
+                .toInstant(TimeZone.currentSystemDefault())
+            val dateString = "${now.year}${now.monthNumber}${now.dayOfMonth}"
+
+            val stepList = healthManager.readSteps(start, end)
+            val stepCounts = stepList.getOrDefault(emptyList())
+
+            linkedHashMap[dateString] = stepCounts.sumOf { it.count }
+        }
+
+        return linkedHashMap
+    }
+
+    private suspend fun getSummedStepsCount(daysDuration: Duration? = null): Int {
+        val clockNow = Clock.System.now()
+        if (daysDuration != null) {
+            clockNow.minus(daysDuration)
+        }
+        val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+        val todaysDate = LocalDate(now.year, now.monthNumber, now.dayOfMonth)
+        val start = todaysDate.atStartOfDayIn(TimeZone.currentSystemDefault())
+        val end = todaysDate.atTime(hour = 23, minute = 59, second = 59, nanosecond = 999999999)
+            .toInstant(TimeZone.currentSystemDefault())
+        val stepList = healthManager.readSteps(start, end)
+        val stepCounts = stepList.getOrDefault(emptyList())
+
+        return stepCounts.sumOf { it.count }
     }
 
 }
