@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>HealthKMP</string>
+	<string>9GAG Move</string>
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
@@ -39,16 +39,16 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>GIDClientID</key>
+	<string>233233604356-ailkook4kh9avr3smuibmjitsi3dlro0.apps.googleusercontent.com</string>
+	<key>LSApplicationCategoryType</key>
+	<string></string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSHealthShareUsageDescription</key>
 	<string>We will read your health information.</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>We will write your health information.</string>
-	<key>LSApplicationCategoryType</key>
-	<string></string>
-	<key>GIDClientID</key>
-	<string>233233604356-ailkook4kh9avr3smuibmjitsi3dlro0.apps.googleusercontent.com</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
