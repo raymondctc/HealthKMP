@@ -38,14 +38,15 @@ data class UiState(
     val stepsRecord: Map<String, Int>
 )
 
-class MainViewModel : ViewModel(), KoinComponent {
-    private val readTypes = listOf(HealthDataType.Steps)
-    private val writeTypes = listOf(HealthDataType.Steps)
+class MainViewModel(
+    private val firebaseGoogleAuthProvider: FirebaseGoogleAuthProvider
+) : ViewModel(), KoinComponent {
+    private val readTypes = listOf<HealthDataType>(HealthDataType.Steps)
+    private val writeTypes = emptyList<HealthDataType>()
     private val healthManagerFactory: HealthManagerFactory by inject()
     private val healthManager = healthManagerFactory.createManager()
-    private val firebaseGoogleAuthProvider: FirebaseGoogleAuthProvider by inject()
     private val firestoreService: FirestoreService by inject()
-    private lateinit var stepsList: Map<String, Int>
+    private var stepsList: Map<String, Int>? = null
 
     private val _uiState = MutableStateFlow(
         UiState(null, isHealthManagerAvailable = false, isAuthorized = false, emptyMap())
@@ -59,13 +60,13 @@ class MainViewModel : ViewModel(), KoinComponent {
             writeTypes = writeTypes
         ).getOrNull() ?: false
 
-        stepsList = getSummedStepsCountListForLastDays(31.days)
+        stepsList = getSummedStepsCountListForLastDays(31.days, isAuthorized)
 
         _uiState.value = UiState(
             User(it.uid, it.email ?: "", it.displayName ?: ""),
             isHealthManagerAvailable,
             isAuthorized,
-            stepsList
+            if (stepsList != null) stepsList!! else emptyMap()
         )
     }
 
@@ -94,17 +95,12 @@ class MainViewModel : ViewModel(), KoinComponent {
             writeTypes = writeTypes
         ).getOrNull() ?: false
 
-        val stepsListMap = if (::stepsList.isInitialized) {
-            stepsList
-        } else {
-            stepsList = getSummedStepsCountListForLastDays(31.days)
-            stepsList
-        }
+        stepsList = getSummedStepsCountListForLastDays(31.days, isAuthorized)
 
         result.getOrNull()?.also { user ->
             Napier.v { "response, $user" }
             _uiState.emit(
-                UiState(user, isHealthManagerAvailable, isAuthorized = isAuthorized, stepsListMap)
+                UiState(user, isHealthManagerAvailable, isAuthorized = isAuthorized, if (stepsList != null) stepsList!! else emptyMap())
             )
         }
     }
@@ -113,7 +109,11 @@ class MainViewModel : ViewModel(), KoinComponent {
         val user = loadUser() ?: return
         val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
         val collectionString = "${now.year}${now.monthNumber}${now.dayOfMonth}"
-        val stepCounts = getSummedStepsCount()
+        val isAuthorized = healthManager.isAuthorized(
+            readTypes = readTypes,
+            writeTypes = writeTypes
+        ).getOrNull() ?: false
+        val stepCounts = getSummedStepsCount(isAuthorized = isAuthorized)
         val data = mapOf("count" to stepCounts)
 
         val docString = "${user.email}/${collectionString}/step_count"
@@ -136,7 +136,11 @@ class MainViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    private suspend fun getSummedStepsCountListForLastDays(daysDuration: Duration): Map<String, Int> {
+    private suspend fun getSummedStepsCountListForLastDays(daysDuration: Duration, isAuthorized: Boolean): Map<String, Int>? {
+        if (!isAuthorized) {
+            return null
+        }
+
         val linkedHashMap = LinkedHashMap<String, Int>()
         for (i in 0..daysDuration.inWholeDays) {
             val clockNow = Clock.System.now()
@@ -157,7 +161,8 @@ class MainViewModel : ViewModel(), KoinComponent {
         return linkedHashMap
     }
 
-    private suspend fun getSummedStepsCount(daysDuration: Duration? = null): Int {
+    private suspend fun getSummedStepsCount(daysDuration: Duration? = null, isAuthorized: Boolean): Int {
+        if (!isAuthorized) return 0
         val clockNow = Clock.System.now()
         if (daysDuration != null) {
             clockNow.minus(daysDuration)

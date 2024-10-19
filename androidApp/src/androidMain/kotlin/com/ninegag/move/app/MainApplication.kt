@@ -2,7 +2,6 @@ package com.ninegag.move.app
 
 import android.app.Application
 import com.ninegag.move.kmp.firestoreModule
-import com.ninegag.move.kmp.platformGoogleAuthModule
 import com.vitoksmile.kmp.health.koin.attachHealthKMP
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.initialize
@@ -26,7 +25,6 @@ class MainApplication : Application() {
             androidLogger()
             attachHealthKMP(this@MainApplication)
             modules(
-                platformGoogleAuthModule(getString(R.string.default_web_client_id)),
                 firestoreModule
             )
         }

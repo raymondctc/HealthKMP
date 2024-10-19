@@ -3,9 +3,11 @@
 package com.vitoksmile.kmp.health.sample
 
 import androidx.compose.ui.window.ComposeUIViewController
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ninegag.move.kmp.MainViewModel
 import com.ninegag.move.kmp.firestoreModule
-import com.ninegag.move.kmp.platformGoogleAuthModule
 import com.ninegag.move.kmp.ui.MoveApp
+import com.tweener.firebase.auth.provider.google.FirebaseGoogleAuthProviderIos
 import com.vitoksmile.kmp.health.HealthManagerFactory
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.FirebaseOptions
@@ -29,13 +31,15 @@ object HealthKMPSample {
                 module {
                     single { HealthManagerFactory() }
                 },
-                platformGoogleAuthModule("1:233233604356:ios:95529c1ce0dc7e0752fa51"),
                 firestoreModule
             )
         }
     }
 
     fun MainViewController() = ComposeUIViewController {
-        MoveApp()
+        val authProvider = FirebaseGoogleAuthProviderIos(serverClientId = "1:233233604356:ios:95529c1ce0dc7e0752fa51")
+        MoveApp(
+            viewModel = viewModel { MainViewModel(authProvider) }
+        )
     }
 }
