@@ -25,7 +25,9 @@ fun MoveApp(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     LaunchedEffect("init") {
+        viewModel.loadUser()
         viewModel.mayCreateUserDoc()
+        viewModel.loadStepCount()
     }
 
     MaterialTheme {
