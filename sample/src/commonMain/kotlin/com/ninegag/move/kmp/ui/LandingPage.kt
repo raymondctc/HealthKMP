@@ -8,7 +8,10 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.lifecycle.viewModelScope
+import coil3.compose.AsyncImage
+import com.ninegag.move.kmp.Constants
 import com.ninegag.move.kmp.MainViewModel
 import kotlinx.coroutines.launch
 
@@ -21,6 +24,11 @@ fun LandingPage(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        AsyncImage(
+            model = Constants.APP_IMAGE,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+        )
         Button(
             onClick = {
                 viewModel.viewModelScope.launch {

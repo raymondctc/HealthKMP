@@ -54,6 +54,10 @@ kotlin {
                 api("io.insert-koin:koin-core:3.5.6")
                 api("io.github.aakira:napier:2.7.1")
 
+                // Coil image lib
+                implementation("io.coil-kt.coil3:coil-compose:3.0.3")
+                implementation("io.coil-kt.coil3:coil-network-ktor3:3.0.3")
+
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.material)
@@ -66,6 +70,7 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 api("io.insert-koin:koin-android:3.5.6")
+                implementation("io.ktor:ktor-client-android:3.0.1")
             }
         }
 
@@ -81,6 +86,7 @@ kotlin {
             dependencies {
                 // Workaround for https://youtrack.jetbrains.com/issue/KT-41821
                 implementation("org.jetbrains.kotlinx:atomicfu:0.21.0")
+                implementation("io.ktor:ktor-client-darwin:3.0.1")
             }
         }
     }

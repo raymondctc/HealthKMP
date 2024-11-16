@@ -5,6 +5,7 @@ package com.vitoksmile.kmp.health.sample
 import androidx.compose.ui.window.ComposeUIViewController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ninegag.move.kmp.MainViewModel
+import com.ninegag.move.kmp.firebaseRemoteConfigModule
 import com.ninegag.move.kmp.firestoreModule
 import com.ninegag.move.kmp.ui.MoveApp
 import com.tweener.firebase.auth.provider.google.FirebaseGoogleAuthProviderIos
@@ -31,7 +32,8 @@ object HealthKMPSample {
                 module {
                     single { HealthManagerFactory() }
                 },
-                firestoreModule
+                firestoreModule,
+                firebaseRemoteConfigModule
             )
         }
     }
