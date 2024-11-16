@@ -13,6 +13,7 @@ Pod::Spec.new do |spec|
     spec.dependency 'FirebaseAuth', '11.2.0'
     spec.dependency 'FirebaseCore', '11.2.0'
     spec.dependency 'FirebaseFirestore', '11.2.0'
+    spec.dependency 'FirebaseRemoteConfig', '11.2.0'
                 
     if !Dir.exist?('build/cocoapods/framework/HealthKMPSample.framework') || Dir.empty?('build/cocoapods/framework/HealthKMPSample.framework')
         raise "

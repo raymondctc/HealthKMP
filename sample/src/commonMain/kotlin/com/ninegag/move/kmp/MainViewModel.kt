@@ -6,6 +6,8 @@ import com.ninegag.move.kmp.model.User
 import com.tweener.firebase.auth.provider.google.FirebaseGoogleAuthProvider
 import com.tweener.firebase.firestore.FirestoreService
 import com.tweener.firebase.firestore.model.FirestoreModel
+import com.tweener.firebase.remoteconfig.RemoteConfigService
+import com.tweener.firebase.remoteconfig.datasource.RemoteConfigDataSource
 import com.vitoksmile.kmp.health.HealthDataType
 import com.vitoksmile.kmp.health.HealthManagerFactory
 import com.vitoksmile.kmp.health.readSteps
@@ -50,6 +52,7 @@ class MainViewModel(
     private val healthManagerFactory: HealthManagerFactory by inject()
     private val healthManager = healthManagerFactory.createManager()
     private val firestoreService: FirestoreService by inject()
+    private val remoteConfig: RemoteConfigDataSource by inject()
     private var stepsList: Map<String, Int>? = null
     private var isAuthorized: Boolean = false
 
@@ -114,6 +117,14 @@ class MainViewModel(
             stepsRecord = if (stepsList != null) stepsList!! else emptyMap()
         )
         _uiState.emit(newState)
+    }
+
+    /**
+     * TODO: to get daily target from remote config
+     */
+    suspend fun loadDailyTarget() {
+        val dailyTarget = remoteConfig.getLong(Constants.RemoteConfigKeys.DAILY_TARGET, 0)
+        Napier.v { "dailyTarget=${dailyTarget}" }
     }
 
     @OptIn(FormatStringsInDatetimeFormats::class)

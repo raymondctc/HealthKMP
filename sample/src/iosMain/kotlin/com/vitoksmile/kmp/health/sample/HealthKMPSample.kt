@@ -26,6 +26,7 @@ object HealthKMPSample {
             applicationId = "1:233233604356:ios:95529c1ce0dc7e0752fa51",
             apiKey = "AIzaSyA6cI-ouqP_5Gh65ojdKV6C869guvaN_nc",
             projectId = "ninegag-move-test",
+            gcmSenderId = "233233604356"
         ))
         startKoin {
             modules(

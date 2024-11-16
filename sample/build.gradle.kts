@@ -43,6 +43,10 @@ kotlin {
             linkOnly = true
             version = "11.2.0"
         }
+        pod("FirebaseRemoteConfig") {
+            linkOnly = true
+            version = "11.2.0"
+        }
     }
 
     sourceSets {

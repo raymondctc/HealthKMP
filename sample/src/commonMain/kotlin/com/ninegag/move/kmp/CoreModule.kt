@@ -3,6 +3,7 @@ package com.ninegag.move.kmp
 
 import com.tweener.firebase.firestore.FirestoreService
 import com.tweener.firebase.remoteconfig.RemoteConfigService
+import com.tweener.firebase.remoteconfig.datasource.RemoteConfigDataSource
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
@@ -13,5 +14,8 @@ val firestoreModule: Module = module {
 }
 
 val firebaseRemoteConfigModule: Module = module {
-    single<RemoteConfigService> { RemoteConfigService(true) }
+    single<RemoteConfigDataSource> {
+        val service = RemoteConfigService(true)
+        RemoteConfigDataSource(firebaseRemoteConfigService = service)
+    }
 }
