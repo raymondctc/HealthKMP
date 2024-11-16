@@ -1,20 +1,20 @@
 package com.ninegag.move.kmp.ui
 
+import MainPage
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import com.ninegag.move.kmp.MainViewModel
 import kotlinx.coroutines.launch
@@ -24,6 +24,7 @@ fun MoveApp(
     viewModel: MainViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val user = uiState.user
     LaunchedEffect("init") {
         viewModel.loadUser()
         viewModel.mayCreateUserDoc()
@@ -31,14 +32,19 @@ fun MoveApp(
     }
 
     MaterialTheme {
-        LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-            item {
-                Header(viewModel)
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text("9GAG Moves!")
+                    }
+                )
             }
-            uiState.stepsRecord.forEach { (date, count) ->
-                item {
-                    Text(text = "Date=$date, steps count= $count")
-                }
+        ) { paddingValues ->
+            if (user != null) {
+                MainPage(viewModel, paddingValues)
+            } else {
+                LandingPage(viewModel)
             }
         }
     }
