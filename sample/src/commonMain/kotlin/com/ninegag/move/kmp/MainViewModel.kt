@@ -133,8 +133,14 @@ class MainViewModel(
      * TODO: to get daily target from remote config
      */
     suspend fun loadDailyTarget() {
-        val dailyTarget = remoteConfig.getLong(Constants.RemoteConfigKeys.DAILY_TARGET, 0)
-        Napier.v { "dailyTarget=${dailyTarget}" }
+        val dailyTarget = remoteConfig.getString(
+            Constants.RemoteConfigKeys.DAILT_TARGET_TICKET,
+            Constants.RemoteConfigDefaults.DEFAULT_TARGET_TICKET
+        )
+
+        val targets = Json.decodeFromString<List<StepTicketBucket>>(dailyTarget)
+
+        Napier.v { "dailyTarget=${dailyTarget}, targets=${targets}" }
     }
 
     @OptIn(FormatStringsInDatetimeFormats::class)

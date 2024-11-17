@@ -62,6 +62,9 @@ kotlin {
                 implementation("io.coil-kt.coil3:coil-compose:3.0.3")
                 implementation("io.coil-kt.coil3:coil-network-ktor3:3.0.3")
 
+                // Kotlinx Serialization
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.material)
