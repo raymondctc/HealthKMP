@@ -1,4 +1,4 @@
-package com.ninegag.move.kmp.ui.user
+package com.ninegag.move.kmp.ui.challenge
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

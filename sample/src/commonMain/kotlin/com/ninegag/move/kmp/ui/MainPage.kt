@@ -8,7 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.ninegag.move.kmp.MainViewModel
-import com.ninegag.move.kmp.ui.user.ChallengePeriodHeader
+import com.ninegag.move.kmp.ui.challenge.ChallengePeriodHeader
 
 @Composable
 fun MainPage(viewModel: MainViewModel, paddingValues: androidx.compose.foundation.layout.PaddingValues) {
