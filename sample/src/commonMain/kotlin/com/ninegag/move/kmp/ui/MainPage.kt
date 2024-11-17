@@ -1,3 +1,4 @@
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,7 +15,10 @@ import com.ninegag.move.kmp.ui.challenge.TargetHeader
 @Composable
 fun MainPage(viewModel: MainViewModel, paddingValues: androidx.compose.foundation.layout.PaddingValues) {
     val uiState by viewModel.uiState.collectAsState()
-    LazyColumn(modifier = Modifier.fillMaxSize().padding(paddingValues).padding(16.dp)) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().padding(paddingValues).padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
         item {
             UserRow(user = uiState.user!!)
         }
