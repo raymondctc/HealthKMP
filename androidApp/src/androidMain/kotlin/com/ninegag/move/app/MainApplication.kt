@@ -3,6 +3,7 @@ package com.ninegag.move.app
 import android.app.Application
 import com.ninegag.move.kmp.firebaseRemoteConfigModule
 import com.ninegag.move.kmp.firestoreModule
+import com.ninegag.move.kmp.repositoryModule
 import com.vitoksmile.kmp.health.koin.attachHealthKMP
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.initialize
@@ -27,7 +28,8 @@ class MainApplication : Application() {
             attachHealthKMP(this@MainApplication)
             modules(
                 firestoreModule,
-                firebaseRemoteConfigModule
+                firebaseRemoteConfigModule,
+                repositoryModule
             )
         }
     }
