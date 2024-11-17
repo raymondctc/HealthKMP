@@ -1,5 +1,7 @@
 package com.ninegag.move.kmp.ui.challenge
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -29,12 +31,29 @@ fun TargetHeader(
         modifier = Modifier.fillMaxWidth(),
 
     ) {
-        Row(
+        Column(
             modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            Icon(Icons.AutoMirrored.Filled.DirectionsWalk, contentDescription = null)
-            Text("Today's progress", style = MaterialTheme.typography.titleMedium)
+            Row {
+                Icon(Icons.AutoMirrored.Filled.DirectionsWalk, contentDescription = null)
+                Text("Today's progress", style = MaterialTheme.typography.titleLarge)
+            }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Steps:", style = MaterialTheme.typography.labelLarge)
+                Text("$currentProgress / $currentTarget", style = MaterialTheme.typography.bodyLarge)
+            }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Ticket(s) earned:", style = MaterialTheme.typography.labelLarge)
+                Text("$currentReward", style = MaterialTheme.typography.bodyLarge)
+            }
         }
+
     }
 }
