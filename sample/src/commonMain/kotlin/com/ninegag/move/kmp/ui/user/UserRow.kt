@@ -1,3 +1,5 @@
+package com.ninegag.move.kmp.ui.user
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row

@@ -1,3 +1,5 @@
+package com.ninegag.move.kmp.ui
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -11,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.ninegag.move.kmp.MainViewModel
 import com.ninegag.move.kmp.ui.challenge.ChallengePeriodHeader
 import com.ninegag.move.kmp.ui.challenge.TargetHeader
+import com.ninegag.move.kmp.ui.user.UserRow
 
 @Composable
 fun MainPage(viewModel: MainViewModel, paddingValues: androidx.compose.foundation.layout.PaddingValues) {
