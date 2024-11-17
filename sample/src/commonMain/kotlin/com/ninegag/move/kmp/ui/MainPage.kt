@@ -32,10 +32,5 @@ fun MainPage(viewModel: MainViewModel, paddingValues: androidx.compose.foundatio
                 currentProgress = 5000,
                 currentReward = 1)
         }
-        uiState.stepsRecord.forEach { (date, count) ->
-            item {
-                Text(text = "Date=$date, steps count= $count")
-            }
-        }
     }
 }
