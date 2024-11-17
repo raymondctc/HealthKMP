@@ -33,22 +33,22 @@ kotlin {
         publishLibraryVariantsGroupedByFlavor = true
     }
 
-    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
+//    iosX64()
+//    iosArm64()
+//    iosSimulatorArm64()
 
-    cocoapods {
-        name = "HealthKMP"
-        version = "0.0.3"
-        summary = "Wrapper for HealthKit on iOS and Google Fit and Health Connect on Android."
-        homepage = "https://github.com/vitoksmile/HealthKMP"
-        ios.deploymentTarget = "14.1"
-        podfile = project.file("../iosApp/Podfile")
-        framework {
-            baseName = "HealthKMP"
-            isStatic = true
-        }
-    }
+//    cocoapods {
+//        name = "HealthKMP"
+//        version = "0.0.3"
+//        summary = "Wrapper for HealthKit on iOS and Google Fit and Health Connect on Android."
+//        homepage = "https://github.com/vitoksmile/HealthKMP"
+//        ios.deploymentTarget = "14.1"
+//        podfile = project.file("../iosApp/Podfile")
+//        framework {
+//            baseName = "HealthKMP"
+//            isStatic = true
+//        }
+//    }
 
     sourceSets {
         val commonMain by getting {
@@ -68,23 +68,27 @@ kotlin {
 
                 // Health Connect
                 implementation("androidx.health.connect:connect-client:1.1.0-alpha04")
+
+                // AppCompat and Core KTX
+                implementation("androidx.appcompat:appcompat:1.6.1")
+                implementation("androidx.core:core-ktx:1.10.1")
             }
         }
 
-        val iosX64Main by getting
-        val iosArm64Main by getting
-        val iosSimulatorArm64Main by getting
-        val iosMain by creating {
-            dependsOn(commonMain)
-            iosX64Main.dependsOn(this)
-            iosArm64Main.dependsOn(this)
-            iosSimulatorArm64Main.dependsOn(this)
-
-            dependencies {
-                // Workaround for https://youtrack.jetbrains.com/issue/KT-41821
-                implementation("org.jetbrains.kotlinx:atomicfu:0.21.0")
-            }
-        }
+//        val iosX64Main by getting
+//        val iosArm64Main by getting
+//        val iosSimulatorArm64Main by getting
+//        val iosMain by creating {
+//            dependsOn(commonMain)
+//            iosX64Main.dependsOn(this)
+//            iosArm64Main.dependsOn(this)
+//            iosSimulatorArm64Main.dependsOn(this)
+//
+//            dependencies {
+//                // Workaround for https://youtrack.jetbrains.com/issue/KT-41821
+//                implementation("org.jetbrains.kotlinx:atomicfu:0.21.0")
+//            }
+//        }
     }
 }
 
