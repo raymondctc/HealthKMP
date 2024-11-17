@@ -11,7 +11,7 @@ import androidx.compose.ui.unit.dp
 import com.ninegag.move.kmp.model.ChallengePeriod
 
 @Composable
-fun CurrentStatus(
+fun ChallengePeriodHeader(
     challengePeriod: ChallengePeriod
 ) {
     Column(

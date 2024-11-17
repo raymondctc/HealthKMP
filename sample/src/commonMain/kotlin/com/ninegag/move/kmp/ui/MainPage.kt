@@ -8,7 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.ninegag.move.kmp.MainViewModel
-import com.ninegag.move.kmp.ui.user.CurrentStatus
+import com.ninegag.move.kmp.ui.user.ChallengePeriodHeader
 
 @Composable
 fun MainPage(viewModel: MainViewModel, paddingValues: androidx.compose.foundation.layout.PaddingValues) {
@@ -18,7 +18,7 @@ fun MainPage(viewModel: MainViewModel, paddingValues: androidx.compose.foundatio
             UserRow(user = uiState.user!!)
         }
         item {
-            CurrentStatus(challengePeriod = uiState.challengePeriod)
+            ChallengePeriodHeader(challengePeriod = uiState.challengePeriod)
         }
         uiState.stepsRecord.forEach { (date, count) ->
             item {
