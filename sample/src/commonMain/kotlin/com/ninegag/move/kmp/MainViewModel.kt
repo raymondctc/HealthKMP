@@ -1,8 +1,11 @@
 package com.ninegag.move.kmp
 
 import androidx.lifecycle.ViewModel
+import com.ninegag.move.kmp.model.ChallengePeriod
 import com.ninegag.move.kmp.model.FirestoreUserModel2
+import com.ninegag.move.kmp.model.StepTicketBucket
 import com.ninegag.move.kmp.model.User
+import com.ninegag.move.kmp.utils.numberOfDays
 import com.tweener.firebase.auth.provider.google.FirebaseGoogleAuthProvider
 import com.tweener.firebase.firestore.FirestoreService
 import com.tweener.firebase.firestore.model.FirestoreModel
@@ -22,6 +25,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -32,6 +36,7 @@ import kotlinx.datetime.atTime
 import kotlinx.datetime.format
 import kotlinx.datetime.format.FormatStringsInDatetimeFormats
 import kotlinx.datetime.format.byUnicodePattern
+import kotlinx.serialization.json.Json
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import kotlin.time.Duration
@@ -41,7 +46,8 @@ data class UiState(
     var user: User? = null,
     val isHealthManagerAvailable: Boolean,
     val isAuthorized: Boolean,
-    val stepsRecord: Map<String, Int>
+    val stepsRecord: Map<String, Int>,
+    val challengePeriod: ChallengePeriod
 )
 
 class MainViewModel(
@@ -57,9 +63,28 @@ class MainViewModel(
     private var isAuthorized: Boolean = false
 
     private val _uiState = MutableStateFlow(
-        UiState(null, isHealthManagerAvailable = false, isAuthorized = false, emptyMap())
+        UiState(
+            user = null,
+            isHealthManagerAvailable = false,
+            isAuthorized = false,
+            stepsRecord = emptyMap(),
+            challengePeriod = getChallengePeriod()
+        )
     )
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+
+    private fun getChallengePeriod(): ChallengePeriod {
+        val today = Clock.System.now()
+        val localDateTime = today.toLocalDateTime(TimeZone.currentSystemDefault())
+        val startOfMonth = LocalDate(localDateTime.year, localDateTime.monthNumber, 1)
+        val endOfMonthDay = localDateTime.month.numberOfDays(localDateTime.year)
+        val endOfMonth = LocalDate(localDateTime.year, localDateTime.monthNumber, endOfMonthDay)
+        val challengePeriod = ChallengePeriod(
+            start = startOfMonth,
+            end = endOfMonth
+        )
+        return challengePeriod
+    }
 
     suspend fun loadUser() = firebaseGoogleAuthProvider.getCurrentUser()?.also {
         val isHealthManagerAvailable = healthManager.isAvailable().getOrNull() ?: false
@@ -77,7 +102,8 @@ class MainViewModel(
             ),
             isHealthManagerAvailable,
             isAuthorized,
-            if (stepsList != null) stepsList!! else emptyMap()
+            if (stepsList != null) stepsList!! else emptyMap(),
+            _uiState.value.challengePeriod
         )
     }
 
@@ -116,7 +142,13 @@ class MainViewModel(
         result.getOrNull()?.also { user ->
             Napier.v { "response, $user" }
             _uiState.emit(
-                UiState(user, isHealthManagerAvailable, isAuthorized = isAuthorized, if (stepsList != null) stepsList!! else emptyMap())
+                UiState(
+                    user = user,
+                    isHealthManagerAvailable = isHealthManagerAvailable,
+                    isAuthorized = isAuthorized,
+                    stepsRecord = if (stepsList != null) stepsList!! else emptyMap(),
+                    challengePeriod = getChallengePeriod()
+                ),
             )
         }
     }

@@ -8,7 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.ninegag.move.kmp.MainViewModel
-import com.ninegag.move.kmp.ui.Header
+import com.ninegag.move.kmp.ui.user.CurrentStatus
 
 @Composable
 fun MainPage(viewModel: MainViewModel, paddingValues: androidx.compose.foundation.layout.PaddingValues) {
@@ -16,6 +16,9 @@ fun MainPage(viewModel: MainViewModel, paddingValues: androidx.compose.foundatio
     LazyColumn(modifier = Modifier.fillMaxSize().padding(paddingValues).padding(16.dp)) {
         item {
             UserRow(user = uiState.user!!)
+        }
+        item {
+            CurrentStatus(challengePeriod = uiState.challengePeriod)
         }
         uiState.stepsRecord.forEach { (date, count) ->
             item {

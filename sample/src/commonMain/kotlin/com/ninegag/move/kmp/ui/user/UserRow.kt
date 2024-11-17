@@ -2,6 +2,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +29,6 @@ fun Avatar(url: String) {
     AsyncImage(
         model = url,
         contentDescription = null,
-        modifier = Modifier.clip(CircleShape)
+        modifier = Modifier.clip(CircleShape).size(48.dp)
     )
 }
