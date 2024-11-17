@@ -15,7 +15,7 @@ fun MainPage(viewModel: MainViewModel, paddingValues: androidx.compose.foundatio
     val uiState by viewModel.uiState.collectAsState()
     LazyColumn(modifier = Modifier.fillMaxSize().padding(paddingValues).padding(16.dp)) {
         item {
-            Header(viewModel)
+            UserRow(user = uiState.user!!)
         }
         uiState.stepsRecord.forEach { (date, count) ->
             item {

@@ -69,7 +69,12 @@ class MainViewModel(
         ).getOrNull() ?: false
 
         _uiState.value = UiState(
-            User(it.uid, it.email ?: "", it.displayName ?: ""),
+            User(
+                id = it.uid,
+                email = it.email ?: "",
+                name = it.displayName ?: "",
+                avatarUrl = it.photoUrl ?: ""
+            ),
             isHealthManagerAvailable,
             isAuthorized,
             if (stepsList != null) stepsList!! else emptyMap()
@@ -86,7 +91,12 @@ class MainViewModel(
 
         firebaseGoogleAuthProvider.signIn { result ->
             deferred.complete(result.map {
-                User(it.uid, it.email ?: "", it.displayName ?: "")
+                User(
+                    id = it.uid,
+                    email = it.email ?: "",
+                    name = it.displayName ?: "",
+                    avatarUrl = it.photoUrl ?: ""
+                )
             })
         }
 
