@@ -1,6 +1,5 @@
 package com.ninegag.move.kmp.repository
 
-import com.ninegag.move.kmp.Constants
 import com.ninegag.move.kmp.model.User
 import com.ninegag.move.kmp.model.firestore.FirestoreDailyRank
 import com.ninegag.move.kmp.model.firestore.FirestoreUser

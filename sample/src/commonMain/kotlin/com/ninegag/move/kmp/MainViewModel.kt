@@ -3,7 +3,6 @@ package com.ninegag.move.kmp
 import androidx.lifecycle.ViewModel
 import com.ninegag.move.kmp.repository.MoveAppRepository
 import com.ninegag.move.kmp.model.ChallengePeriod
-import com.ninegag.move.kmp.model.FirestoreUserModel2
 import com.ninegag.move.kmp.model.StepTicketBucket
 import com.ninegag.move.kmp.model.User
 import com.ninegag.move.kmp.utils.numberOfDays
@@ -13,8 +12,6 @@ import com.tweener.firebase.remoteconfig.datasource.RemoteConfigDataSource
 import com.vitoksmile.kmp.health.HealthDataType
 import com.vitoksmile.kmp.health.HealthManager
 import com.vitoksmile.kmp.health.readSteps
-import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.firestore.firestore
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
@@ -24,19 +21,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.atTime
-import kotlinx.datetime.format
-import kotlinx.datetime.format.FormatStringsInDatetimeFormats
-import kotlinx.datetime.format.byUnicodePattern
 import kotlinx.serialization.json.Json
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 
 data class UiState(
@@ -53,9 +45,7 @@ class MainViewModel(
     private val readTypes = listOf<HealthDataType>(HealthDataType.Steps)
     private val writeTypes = emptyList<HealthDataType>()
     private val healthManager: HealthManager by inject()
-
-    @Deprecated("Moved to repository")
-    private val firestoreService: FirestoreService by inject()
+    
     private val repository: MoveAppRepository by inject()
     private val remoteConfig: RemoteConfigDataSource by inject()
     private var stepsList: Map<String, Int>? = null
@@ -178,45 +168,6 @@ class MainViewModel(
         Napier.v { "dailyTarget=${dailyTarget}, targets=${targets}" }
     }
 
-    @OptIn(FormatStringsInDatetimeFormats::class)
-    suspend fun mayCreateUserDoc2() {
-        val user = _uiState.value.user
-        if (user === null) return
-        if (!isAuthorized) return
-
-        val isUserExist = Firebase.firestore.document("users/${user.email}").get().exists
-        if (!isUserExist) {
-            firestoreService.create<FirestoreUserModel2>("users", user.email, data = mapOf("count" to 0))
-        } else {
-            firestoreService.update("users", user.email, data = mapOf("count" to 0))
-        }
-
-        val utcNowString = Clock.System.now()
-            .toLocalDateTime(TimeZone.UTC)
-            .format(LocalDateTime.Format { byUnicodePattern("yyyy-MM-dd") })
-
-        val isDailyStepCountExist = Firebase.firestore.document("dailyStepCounts/${user.email}_${utcNowString}").get().exists
-        val dailyStepCountsMap = mapOf(
-            "user" to user.email,
-            "date" to utcNowString,
-            "count" to getSummedStepsCount(isAuthorized = isAuthorized)
-        )
-
-        if (!isDailyStepCountExist) {
-            firestoreService.create<FirestoreUserModel2>(
-                collection = "dailyStepCounts",
-                id = "${user.email}_${utcNowString}",
-                data = dailyStepCountsMap
-            )
-        } else {
-            firestoreService.update(
-                collection = "dailyStepCounts",
-                id = "${user.email}_${utcNowString}",
-                data = dailyStepCountsMap
-            )
-        }
-    }
-
     suspend fun mayCreateUserDoc() {
         mayCreateUserCollection()
     }
@@ -248,47 +199,6 @@ class MainViewModel(
         }
 
         return linkedHashMap
-    }
-
-    private suspend fun getSummedStepsCountListForLastDays(daysDuration: Duration, isAuthorized: Boolean): Map<String, Int>? {
-        if (!isAuthorized) {
-            return null
-        }
-
-        val linkedHashMap = LinkedHashMap<String, Int>()
-        for (i in 0..daysDuration.inWholeDays) {
-            Napier.v(tag = "getSummedStepsCountListForLastDays", message = "i=$i")
-            val now = Clock.System.now().minus(i.days).toLocalDateTime(TimeZone.currentSystemDefault())
-            val todaysDate = LocalDate(now.year, now.monthNumber, now.dayOfMonth)
-            val start = todaysDate.atStartOfDayIn(TimeZone.currentSystemDefault())
-            val end = todaysDate.atTime(hour = 23, minute = 59, second = 59, nanosecond = 999999999)
-                .toInstant(TimeZone.currentSystemDefault())
-            val dateString = "${now.year}${now.monthNumber}${now.dayOfMonth}"
-
-            val stepList = healthManager.readSteps(start, end)
-            val stepCounts = stepList.getOrDefault(emptyList())
-
-            linkedHashMap[dateString] = stepCounts.sumOf { it.count }
-        }
-
-        return linkedHashMap
-    }
-
-    private suspend fun getSummedStepsCount(daysDuration: Duration? = null, isAuthorized: Boolean): Int {
-        if (!isAuthorized) return 0
-        val clockNow = Clock.System.now()
-        if (daysDuration != null) {
-            clockNow.minus(daysDuration)
-        }
-        val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-        val todaysDate = LocalDate(now.year, now.monthNumber, now.dayOfMonth)
-        val start = todaysDate.atStartOfDayIn(TimeZone.currentSystemDefault())
-        val end = todaysDate.atTime(hour = 23, minute = 59, second = 59, nanosecond = 999999999)
-            .toInstant(TimeZone.currentSystemDefault())
-        val stepList = healthManager.readSteps(start, end)
-        val stepCounts = stepList.getOrDefault(emptyList())
-
-        return stepCounts.sumOf { it.count }
     }
 
     /**
