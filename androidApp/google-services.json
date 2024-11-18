@@ -2,7 +2,7 @@
   "project_info": {
     "project_number": "233233604356",
     "project_id": "ninegag-move-test",
-    "storage_bucket": "ninegag-move-test.appspot.com"
+    "storage_bucket": "ninegag-move-test.firebasestorage.app"
   },
   "client": [
     {
@@ -37,6 +37,13 @@
             {
               "client_id": "233233604356-atbu1ckn6uh00dj87ufch6a7s30u9mas.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "233233604356-ailkook4kh9avr3smuibmjitsi3dlro0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ninegag.move.app"
+              }
             }
           ]
         }
