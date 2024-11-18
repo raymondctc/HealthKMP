@@ -45,7 +45,7 @@ class MainViewModel(
     private val readTypes = listOf<HealthDataType>(HealthDataType.Steps)
     private val writeTypes = emptyList<HealthDataType>()
     private val healthManager: HealthManager by inject()
-    
+
     private val repository: MoveAppRepository by inject()
     private val remoteConfig: RemoteConfigDataSource by inject()
     private var stepsList: Map<String, Int>? = null
@@ -98,8 +98,16 @@ class MainViewModel(
     }
 
     suspend fun requestAuthorization() {
-        val result = healthManager.requestAuthorization(readTypes = readTypes, writeTypes = writeTypes)
-        _uiState.value = _uiState.value.copy(isAuthorized = result.getOrNull() ?: false)
+        try {
+            val result = healthManager.requestAuthorization(readTypes = readTypes, writeTypes = writeTypes)
+            result.onSuccess {
+                _uiState.value = _uiState.value.copy(isAuthorized = result.getOrDefault(false))
+            }.onFailure {
+                Napier.e(tag = "requestAuthorization", message = "error=${it.message}")
+            }
+        } catch (e: Exception) {
+            Napier.e(tag = "requestAuthorization", message = "error=${e.message}")
+        }
     }
 
     private suspend fun signInAsync(): Result<User> {
@@ -145,6 +153,10 @@ class MainViewModel(
     }
 
     suspend fun loadStepCount() {
+        if (!isAuthorized) {
+            Napier.v(tag = "loadStepCount", message = "authorized=$isAuthorized, skip loading")
+            return;
+        }
         stepsList = getSummedStepsCountForMonth(isAuthorized)
         val newState = _uiState.value.copy(
             stepsRecord = if (stepsList != null) stepsList!! else emptyMap()

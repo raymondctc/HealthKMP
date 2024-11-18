@@ -7,6 +7,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
@@ -18,16 +19,19 @@ import kotlinx.coroutines.launch
 @Composable
 fun MainPage(viewModel: MainViewModel, paddingValues: androidx.compose.foundation.layout.PaddingValues) {
     val uiState by viewModel.uiState.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(paddingValues).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
             UserRow(user = uiState.user!!)
-            if (!uiState.isAuthorized) {
+            if (!uiState.isHealthManagerAvailable) {
+                Text("Sorry, this application is not supported on your device")
+            } else if (!uiState.isAuthorized) {
                 Button(
                     onClick = {
-                        viewModel.viewModelScope.launch {
+                        coroutineScope.launch {
                             viewModel.requestAuthorization()
                         }
                     }
