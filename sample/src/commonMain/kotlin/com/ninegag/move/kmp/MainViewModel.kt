@@ -11,7 +11,7 @@ import com.tweener.firebase.auth.provider.google.FirebaseGoogleAuthProvider
 import com.tweener.firebase.firestore.FirestoreService
 import com.tweener.firebase.remoteconfig.datasource.RemoteConfigDataSource
 import com.vitoksmile.kmp.health.HealthDataType
-import com.vitoksmile.kmp.health.HealthManagerFactory
+import com.vitoksmile.kmp.health.HealthManager
 import com.vitoksmile.kmp.health.readSteps
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.firestore.firestore
@@ -52,8 +52,7 @@ class MainViewModel(
 ) : ViewModel(), KoinComponent {
     private val readTypes = listOf<HealthDataType>(HealthDataType.Steps)
     private val writeTypes = emptyList<HealthDataType>()
-    private val healthManagerFactory: HealthManagerFactory by inject()
-    private val healthManager = healthManagerFactory.createManager()
+    private val healthManager: HealthManager by inject()
 
     @Deprecated("Moved to repository")
     private val firestoreService: FirestoreService by inject()
@@ -161,6 +160,8 @@ class MainViewModel(
             stepsRecord = if (stepsList != null) stepsList!! else emptyMap()
         )
         _uiState.emit(newState)
+
+        repository.createOrUpdateStepsCollection(user!!)
     }
 
     /**
@@ -294,6 +295,6 @@ class MainViewModel(
      * To create user doc on Firebase if not exists
      */
     private suspend fun mayCreateUserCollection() {
-        repository.mayCreateUserCollection(user, isAuthorized)
+        repository.createOrUpdateUserCollection(user, isAuthorized)
     }
 }

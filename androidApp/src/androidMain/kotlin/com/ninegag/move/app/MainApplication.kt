@@ -3,6 +3,7 @@ package com.ninegag.move.app
 import android.app.Application
 import com.ninegag.move.kmp.firebaseRemoteConfigModule
 import com.ninegag.move.kmp.firestoreModule
+import com.ninegag.move.kmp.healthManagerModule
 import com.ninegag.move.kmp.repositoryModule
 import com.vitoksmile.kmp.health.koin.attachHealthKMP
 import dev.gitlive.firebase.Firebase
@@ -29,7 +30,8 @@ class MainApplication : Application() {
             modules(
                 firestoreModule,
                 firebaseRemoteConfigModule,
-                repositoryModule
+                repositoryModule,
+                healthManagerModule
             )
         }
     }
