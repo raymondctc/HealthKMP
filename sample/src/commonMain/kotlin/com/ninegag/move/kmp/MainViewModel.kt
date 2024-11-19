@@ -12,6 +12,7 @@ import com.tweener.firebase.remoteconfig.datasource.RemoteConfigDataSource
 import com.vitoksmile.kmp.health.HealthDataType
 import com.vitoksmile.kmp.health.HealthManager
 import com.vitoksmile.kmp.health.readSteps
+import com.vitoksmile.kmp.health.records.StepsRecord
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
@@ -36,6 +37,7 @@ data class UiState(
     val isHealthManagerAvailable: Boolean,
     val isAuthorized: Boolean,
     val stepsRecord: Map<String, Int>,
+    val currentDaySteps: Int,
     val challengePeriod: ChallengePeriod
 )
 
@@ -58,6 +60,7 @@ class MainViewModel(
             isHealthManagerAvailable = false,
             isAuthorized = false,
             stepsRecord = emptyMap(),
+            currentDaySteps = 0,
             challengePeriod = getChallengePeriod()
         )
     )
@@ -93,8 +96,11 @@ class MainViewModel(
             isHealthManagerAvailable,
             isAuthorized,
             if (stepsList != null) stepsList!! else emptyMap(),
-            _uiState.value.challengePeriod
+            0,
+            _uiState.value.challengePeriod,
         )
+
+        loadStepCount() // Call loadStepCount directly
     }
 
     suspend fun requestAuthorization() {
@@ -146,7 +152,8 @@ class MainViewModel(
                     isHealthManagerAvailable = isHealthManagerAvailable,
                     isAuthorized = isAuthorized,
                     stepsRecord = if (stepsList != null) stepsList!! else emptyMap(),
-                    challengePeriod = getChallengePeriod()
+                    challengePeriod = getChallengePeriod(),
+                    currentDaySteps = _uiState.value.currentDaySteps
                 ),
             )
         }
@@ -157,13 +164,17 @@ class MainViewModel(
             Napier.v(tag = "loadStepCount", message = "authorized=$isAuthorized, skip loading")
             return;
         }
+        val todaySteps = repository.getTodaySteps()
         stepsList = getSummedStepsCountForMonth(isAuthorized)
         val newState = _uiState.value.copy(
-            stepsRecord = if (stepsList != null) stepsList!! else emptyMap()
+            stepsRecord = if (stepsList != null) stepsList!! else emptyMap(),
+            currentDaySteps = todaySteps
         )
         _uiState.emit(newState)
 
         repository.createOrUpdateStepsCollection(user!!)
+        // debug log
+        Napier.v(tag = "loadStepCount", message = "Loaded step count: todaySteps=$todaySteps, monthlySteps=${stepsList?.values?.sum()}")
     }
 
     /**

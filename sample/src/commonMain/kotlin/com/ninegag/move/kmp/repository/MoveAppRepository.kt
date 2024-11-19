@@ -19,6 +19,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import kotlin.time.Duration.Companion.days
 import com.ninegag.move.kmp.Constants.Firestore
+import com.vitoksmile.kmp.health.HealthDataType
 
 class MoveAppRepository : KoinComponent {
 
@@ -97,6 +98,21 @@ class MoveAppRepository : KoinComponent {
             documentId = "${user.email}/${Firestore.Collections.MONTHLY_STEPS}/$monthString",
             data = data
         )
+    }
+
+    /**
+     * TODO: add mock data to ensure emptyList return is correct
+     */
+    suspend fun getTodaySteps(): Int {
+        val now = Clock.System.now()
+        val today = now.toLocalDateTime(TimeZone.currentSystemDefault()).date
+        val start = today.atStartOfDayIn(TimeZone.currentSystemDefault())
+        val end = today.atTime(23, 59, 59).toInstant(TimeZone.currentSystemDefault())
+
+        val stepList = healthManager.readSteps(start, end)
+        val stepCountsOfToday = stepList.getOrDefault(emptyList())
+        println("HealthManager.readData result: $stepList")
+        return stepCountsOfToday.sumOf { it.count }
     }
 
     private suspend inline fun <reified T: FirestoreModel> createOrUpdateCollection(

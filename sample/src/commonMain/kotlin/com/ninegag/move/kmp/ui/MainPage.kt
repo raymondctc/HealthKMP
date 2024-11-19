@@ -14,6 +14,7 @@ import androidx.lifecycle.viewModelScope
 import com.ninegag.move.kmp.MainViewModel
 import com.ninegag.move.kmp.ui.challenge.ChallengePeriodHeader
 import com.ninegag.move.kmp.ui.challenge.TargetHeader
+import com.ninegag.move.kmp.ui.user.UserRow
 import kotlinx.coroutines.launch
 
 @Composable
@@ -47,7 +48,7 @@ fun MainPage(viewModel: MainViewModel, paddingValues: androidx.compose.foundatio
             TargetHeader(
                 currentTarget = 6000,
                 currentRewards = 1,
-                currentProgress = 5000,
+                currentProgress = uiState.currentDaySteps,
                 currentReward = 1)
         }
     }
