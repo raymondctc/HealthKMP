@@ -44,10 +44,11 @@ fun MainPage(viewModel: MainViewModel, paddingValues: androidx.compose.foundatio
         }
         item {
             TargetHeader(
-                currentTarget = 6000,
+                currentTarget = uiState.targetSteps.first,
                 currentRewards = 1,
                 currentProgress = uiState.currentDaySteps,
-                currentReward = 1)
+                currentReward = uiState.targetSteps.second
+            )
         }
     }
 }

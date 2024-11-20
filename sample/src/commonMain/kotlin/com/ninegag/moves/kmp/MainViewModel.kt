@@ -37,6 +37,7 @@ data class UiState(
     val isAuthorized: Boolean,
     val stepsRecord: Map<String, Int>,
     val currentDaySteps: Int,
+    val targetSteps: Pair<Int, Int>, // (currentTarget, currentReward)
     val challengePeriod: ChallengePeriod
 )
 
@@ -49,6 +50,7 @@ class MainViewModel(
 
     private val repository: MoveAppRepository by inject()
     private val remoteConfig: RemoteConfigDataSource by inject()
+    private var targetStepsList: List<StepTicketBucket> = emptyList()
     private var stepsList: Map<String, Int>? = null
     private var isAuthorized: Boolean = false
     private var user: User? = null
@@ -60,6 +62,7 @@ class MainViewModel(
             isAuthorized = false,
             stepsRecord = emptyMap(),
             currentDaySteps = 0,
+            targetSteps = 0 to 0,
             challengePeriod = getChallengePeriod()
         )
     )
@@ -95,11 +98,12 @@ class MainViewModel(
             isHealthManagerAvailable,
             isAuthorized,
             if (stepsList != null) stepsList!! else emptyMap(),
-            0,
-            _uiState.value.challengePeriod,
+            _uiState.value.currentDaySteps,
+            _uiState.value.targetSteps,
+            _uiState.value.challengePeriod
         )
-
-        loadStepCount() // Call loadStepCount directly
+        loadDailyTarget()
+        loadStepCount()
     }
 
     suspend fun requestAuthorization() {
@@ -151,8 +155,9 @@ class MainViewModel(
                     isHealthManagerAvailable = isHealthManagerAvailable,
                     isAuthorized = isAuthorized,
                     stepsRecord = if (stepsList != null) stepsList!! else emptyMap(),
-                    challengePeriod = getChallengePeriod(),
-                    currentDaySteps = _uiState.value.currentDaySteps
+                    currentDaySteps = _uiState.value.currentDaySteps,
+                    targetSteps = _uiState.value.targetSteps,
+                    challengePeriod = getChallengePeriod()
                 ),
             )
         }
@@ -185,9 +190,29 @@ class MainViewModel(
             Constants.RemoteConfigDefaults.DEFAULT_TARGET_TICKET
         )
 
-        val targets = Json.decodeFromString<List<StepTicketBucket>>(dailyTarget)
+        targetStepsList = Json.decodeFromString<List<StepTicketBucket>>(dailyTarget)
+        val currentDaySteps = _uiState.value.currentDaySteps
 
-        Napier.v { "dailyTarget=${dailyTarget}, targets=${targets}" }
+        // determine target and ticket(s) awarded based on currentDaySteps
+        var currentTarget = 6000
+        var currentReward = 0
+        for (target in targetStepsList) {
+            if (currentDaySteps in target.stepsMin..target.stepsMax) {
+                currentTarget = target.stepsMin
+                currentReward = target.tickets
+                break
+            }
+        }
+
+        _uiState.emit(
+            _uiState.value.copy(
+                targetSteps = currentTarget to currentReward
+            )
+        )
+        // debug log
+        Napier.v {
+            "loadDailyTarget(): currentDaySteps=$currentDaySteps, currentTarget=$currentTarget, currentReward=$currentReward, targetStepsList=$targetStepsList"
+        }
     }
 
     suspend fun mayCreateUserDoc() {
