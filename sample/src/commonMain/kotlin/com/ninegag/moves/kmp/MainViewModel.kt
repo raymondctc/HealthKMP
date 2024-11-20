@@ -210,10 +210,22 @@ class MainViewModel(
         // determine target and ticket(s) awarded based on currentDaySteps
         var currentTarget = 6000
         var currentReward = 0
-        for (target in targetStepsList) {
+
+        for ((index, target) in targetStepsList.withIndex()) {
             if (currentDaySteps in target.stepsMin..target.stepsMax) {
-                currentTarget = target.stepsMin
-                currentReward = target.tickets
+                // if in highest tier, default to 10000 and cap reward
+                if (index == targetStepsList.size - 1 || currentDaySteps >= 10000) {
+                    currentTarget = 10000
+                    currentReward = 5
+                } else {
+                    // current target set to the next tier
+                    currentTarget = if (index + 1 < targetStepsList.size) {
+                        targetStepsList[index + 1].stepsMin
+                    } else {
+                        target.stepsMax + 1
+                    }
+                    currentReward = target.tickets
+                }
                 break
             }
         }
