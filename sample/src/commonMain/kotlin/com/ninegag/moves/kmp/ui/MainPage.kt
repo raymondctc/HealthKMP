@@ -10,11 +10,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewModelScope
 import com.ninegag.moves.kmp.MainViewModel
 import com.ninegag.moves.kmp.ui.challenge.ChallengePeriodHeader
 import com.ninegag.moves.kmp.ui.challenge.TargetHeader
-import com.ninegag.moves.kmp.ui.user.UserRow
 import kotlinx.coroutines.launch
 
 @Composable
