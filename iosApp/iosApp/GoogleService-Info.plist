@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>233233604356-ailkook4kh9avr3smuibmjitsi3dlro0.apps.googleusercontent.com</string>
+	<string>233233604356-tu0gtrgq5lnvjkachdkl13qs9q705b8r.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.233233604356-ailkook4kh9avr3smuibmjitsi3dlro0</string>
+	<string>com.googleusercontent.apps.233233604356-tu0gtrgq5lnvjkachdkl13qs9q705b8r</string>
 	<key>ANDROID_CLIENT_ID</key>
-	<string>233233604356-b6gsgsfv69vitodrhamttfd8asdqm7i4.apps.googleusercontent.com</string>
+	<string>233233604356-0t3q68gmk684ltdqsdoqj8evovaagc08.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
 	<string>AIzaSyA6cI-ouqP_5Gh65ojdKV6C869guvaN_nc</string>
 	<key>GCM_SENDER_ID</key>
@@ -15,11 +15,11 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.ninegag.move.app</string>
+	<string>com.ninegag.moves.ios.app</string>
 	<key>PROJECT_ID</key>
 	<string>ninegag-move-test</string>
 	<key>STORAGE_BUCKET</key>
-	<string>ninegag-move-test.appspot.com</string>
+	<string>ninegag-move-test.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -31,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:233233604356:ios:95529c1ce0dc7e0752fa51</string>
+	<string>1:233233604356:ios:c40df09d5c7f400952fa51</string>
 </dict>
 </plist>

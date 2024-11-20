@@ -28,7 +28,7 @@ kotlin {
 
 android {
     compileSdk = (findProperty("android.compileSdk") as String).toInt()
-    namespace = "com.ninegag.move.app"
+    namespace = "com.ninegag.moves.android.app"
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
 

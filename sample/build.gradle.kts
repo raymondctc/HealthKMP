@@ -16,6 +16,14 @@ kotlin {
     iosArm64()
     iosSimulatorArm64()
 
+    targets.configureEach {
+        compilations.configureEach {
+            compileTaskProvider.get().compilerOptions {
+                freeCompilerArgs.add("-Xexpect-actual-classes")
+            }
+        }
+    }
+
     cocoapods {
         name = "HealthKMPSample"
         version = "0.0.3"
