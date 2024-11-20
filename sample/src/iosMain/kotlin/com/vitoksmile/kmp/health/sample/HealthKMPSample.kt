@@ -4,12 +4,12 @@ package com.vitoksmile.kmp.health.sample
 
 import androidx.compose.ui.window.ComposeUIViewController
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.ninegag.move.kmp.MainViewModel
-import com.ninegag.move.kmp.firebaseRemoteConfigModule
-import com.ninegag.move.kmp.firestoreModule
-import com.ninegag.move.kmp.healthManagerModule
-import com.ninegag.move.kmp.repositoryModule
-import com.ninegag.move.kmp.ui.MoveApp
+import com.ninegag.moves.kmp.MainViewModel
+import com.ninegag.moves.kmp.firebaseRemoteConfigModule
+import com.ninegag.moves.kmp.firestoreModule
+import com.ninegag.moves.kmp.healthManagerModule
+import com.ninegag.moves.kmp.repositoryModule
+import com.ninegag.moves.kmp.ui.MoveApp
 import com.tweener.firebase.auth.provider.google.FirebaseGoogleAuthProviderIos
 import com.vitoksmile.kmp.health.HealthManagerFactory
 import dev.gitlive.firebase.Firebase

@@ -7,25 +7,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:233233604356:android:4997bbdf17b0a26852fa51",
+        "mobilesdk_app_id": "1:233233604356:android:c3283ecdf3fbc8de52fa51",
         "android_client_info": {
-          "package_name": "com.ninegag.move.app.dev"
+          "package_name": "com.ninegag.moves.android.app.dev"
         }
       },
       "oauth_client": [
         {
-          "client_id": "233233604356-0t3q68gmk684ltdqsdoqj8evovaagc08.apps.googleusercontent.com",
+          "client_id": "233233604356-aqfv9o2qg5i9mekh5l3s8s7qvijvvno9.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.ninegag.move.app.dev",
-            "certificate_hash": "448f16c3a9ae27a19b12f83a610119011086853b"
-          }
-        },
-        {
-          "client_id": "233233604356-b6gsgsfv69vitodrhamttfd8asdqm7i4.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.ninegag.move.app.dev",
+            "package_name": "com.ninegag.moves.android.app.dev",
             "certificate_hash": "5bcbe40ffac274d18f48e4aa7e1ab7086ce1ae22"
           }
         },
