@@ -161,6 +161,23 @@ class MainViewModel(
                 ),
             )
         }
+        loadUser()
+    }
+
+    suspend fun signOut() {
+        firebaseGoogleAuthProvider.signOut()
+        user = null
+        _uiState.emit(
+            UiState(
+                user = null,
+                isHealthManagerAvailable = false,
+                isAuthorized = false,
+                stepsRecord = emptyMap(),
+                currentDaySteps = 0,
+                targetSteps = 0 to 0,
+                challengePeriod = getChallengePeriod()
+            )
+        )
     }
 
     suspend fun loadStepCount() {
@@ -181,9 +198,6 @@ class MainViewModel(
         Napier.v(tag = "loadStepCount", message = "Loaded step count: todaySteps=$todaySteps, monthlySteps=${stepsList?.values?.sum()}")
     }
 
-    /**
-     * TODO: to get daily target from remote config
-     */
     suspend fun loadDailyTarget() {
         val dailyTarget = remoteConfig.getString(
             Constants.RemoteConfigKeys.DAILT_TARGET_TICKET,

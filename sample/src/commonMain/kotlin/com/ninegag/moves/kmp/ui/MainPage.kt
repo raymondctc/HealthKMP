@@ -16,9 +16,18 @@ import com.ninegag.moves.kmp.ui.challenge.TargetHeader
 import kotlinx.coroutines.launch
 
 @Composable
-fun MainPage(viewModel: MainViewModel, paddingValues: androidx.compose.foundation.layout.PaddingValues) {
+fun MainPage(
+    viewModel: MainViewModel,
+    paddingValues: androidx.compose.foundation.layout.PaddingValues,
+    onNavigateToLandingPage: () -> Unit) {
     val uiState by viewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
+
+    if (uiState.user == null) {
+        onNavigateToLandingPage()
+        return
+    }
+
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(paddingValues).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -49,6 +58,18 @@ fun MainPage(viewModel: MainViewModel, paddingValues: androidx.compose.foundatio
                 currentProgress = uiState.currentDaySteps,
                 currentReward = uiState.targetSteps.second
             )
+        }
+        item {
+            Button(
+                onClick = {
+                    coroutineScope.launch {
+                        viewModel.signOut()
+                        onNavigateToLandingPage()
+                    }
+                }
+            ) {
+                Text("Sign Out")
+            }
         }
     }
 }
