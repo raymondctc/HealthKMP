@@ -48,6 +48,9 @@ class MainViewModel(
     private val writeTypes = emptyList<HealthDataType>()
     private val healthManager: HealthManager by inject()
 
+    var minStepTarget: Int = 6000
+        private set
+
     private val repository: MoveAppRepository by inject()
     private val remoteConfig: RemoteConfigDataSource by inject()
     private var targetStepsList: List<StepTicketBucket> = emptyList()

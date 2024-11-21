@@ -53,7 +53,7 @@ fun MainPage(
         }
         item {
             TargetHeader(
-                currentTarget = uiState.targetSteps.first,
+                currentTarget = viewModel.minStepTarget,
                 currentRewards = 1,
                 currentProgress = uiState.currentDaySteps,
                 currentReward = uiState.targetSteps.second
