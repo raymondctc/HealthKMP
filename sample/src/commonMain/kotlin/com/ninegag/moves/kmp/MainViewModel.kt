@@ -37,7 +37,8 @@ data class UiState(
     val isAuthorized: Boolean,
     val stepsRecord: Map<String, Int>,
     val currentDaySteps: Int,
-    val targetSteps: Pair<Int, Int>, // (currentTarget, currentReward)
+    val dailyTargetSteps: Int, // minimum daily target
+    val currentReward: Int, // calculated reward tickets
     val challengePeriod: ChallengePeriod
 )
 
@@ -47,9 +48,6 @@ class MainViewModel(
     private val readTypes = listOf<HealthDataType>(HealthDataType.Steps)
     private val writeTypes = emptyList<HealthDataType>()
     private val healthManager: HealthManager by inject()
-
-    var minStepTarget: Int = 6000
-        private set
 
     private val repository: MoveAppRepository by inject()
     private val remoteConfig: RemoteConfigDataSource by inject()
@@ -65,7 +63,8 @@ class MainViewModel(
             isAuthorized = false,
             stepsRecord = emptyMap(),
             currentDaySteps = 0,
-            targetSteps = 0 to 0,
+            dailyTargetSteps = 0,
+            currentReward = 0,
             challengePeriod = getChallengePeriod()
         )
     )
@@ -102,10 +101,12 @@ class MainViewModel(
             isAuthorized,
             if (stepsList != null) stepsList!! else emptyMap(),
             _uiState.value.currentDaySteps,
-            _uiState.value.targetSteps,
+            _uiState.value.dailyTargetSteps,
+            _uiState.value.currentReward,
             _uiState.value.challengePeriod
         )
         loadDailyTarget()
+        loadDailyReward()
         loadStepCount()
     }
 
@@ -159,7 +160,8 @@ class MainViewModel(
                     isAuthorized = isAuthorized,
                     stepsRecord = if (stepsList != null) stepsList!! else emptyMap(),
                     currentDaySteps = _uiState.value.currentDaySteps,
-                    targetSteps = _uiState.value.targetSteps,
+                    dailyTargetSteps = _uiState.value.dailyTargetSteps,
+                    currentReward = _uiState.value.currentReward,
                     challengePeriod = getChallengePeriod()
                 ),
             )
@@ -177,8 +179,9 @@ class MainViewModel(
                 isAuthorized = false,
                 stepsRecord = emptyMap(),
                 currentDaySteps = 0,
-                targetSteps = 0 to 0,
-                challengePeriod = getChallengePeriod()
+                dailyTargetSteps = 0,
+                challengePeriod = getChallengePeriod(),
+                currentReward = 0
             )
         )
     }
@@ -201,7 +204,7 @@ class MainViewModel(
         Napier.v(tag = "loadStepCount", message = "Loaded step count: todaySteps=$todaySteps, monthlySteps=${stepsList?.values?.sum()}")
     }
 
-    suspend fun loadDailyTarget() {
+    suspend fun loadDailyReward() {
         val dailyTarget = remoteConfig.getString(
             Constants.RemoteConfigKeys.DAILT_TARGET_TICKET,
             Constants.RemoteConfigDefaults.DEFAULT_TARGET_TICKET
@@ -210,37 +213,38 @@ class MainViewModel(
         targetStepsList = Json.decodeFromString<List<StepTicketBucket>>(dailyTarget)
         val currentDaySteps = _uiState.value.currentDaySteps
 
-        // determine target and ticket(s) awarded based on currentDaySteps
-        var currentTarget = 6000
+        // Determine reward tickets based on currentDaySteps
         var currentReward = 0
-
-        for ((index, target) in targetStepsList.withIndex()) {
+        for (target in targetStepsList) {
             if (currentDaySteps in target.stepsMin..target.stepsMax) {
-                // if in highest tier, default to 10000 and cap reward
-                if (index == targetStepsList.size - 1 || currentDaySteps >= 10000) {
-                    currentTarget = 10000
-                    currentReward = 5
-                } else {
-                    // current target set to the next tier
-                    currentTarget = if (index + 1 < targetStepsList.size) {
-                        targetStepsList[index + 1].stepsMin
-                    } else {
-                        target.stepsMax + 1
-                    }
-                    currentReward = target.tickets
-                }
+                currentReward = target.tickets
                 break
             }
         }
 
         _uiState.emit(
             _uiState.value.copy(
-                targetSteps = currentTarget to currentReward
+                currentReward = currentReward
             )
         )
+
         // debug log
         Napier.v {
-            "loadDailyTarget(): currentDaySteps=$currentDaySteps, currentTarget=$currentTarget, currentReward=$currentReward, targetStepsList=$targetStepsList"
+            "loadDailyReward(): currentDaySteps=$currentDaySteps, currentReward=$currentReward"
+        }
+    }
+
+    suspend fun loadDailyTarget() {
+        try {
+            val target = repository.getMinStepTarget()
+            _uiState.emit(
+                _uiState.value.copy(
+                    dailyTargetSteps = target
+                )
+            )
+            Napier.v { "Successfully loaded daily target: $target" }
+        } catch (e: Exception) {
+            Napier.e(tag = "loadDailyTarget", message = "Error loading daily target: ${e.message}")
         }
     }
 
