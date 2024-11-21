@@ -56,6 +56,11 @@ object Constants {
             val AVATAR_URL = "avatarUrl"
             val STEPS = "steps"
             val TOTAL_TICKETS_EARNED = "totalTicketsEarned" // in current challenge period
+            val CHALLENGE_PERIOD = "challengePeriod"
+
+            val START = "start" // of challengePeriod
+            val END = "end" // of challengePeriod
         }
+
     }
 }
