@@ -5,6 +5,7 @@ object Constants {
     object RemoteConfigKeys {
         val DAILY_TARGET = "daily_target"
         val DAILT_TARGET_TICKET = "daily_target_ticket"
+        val MIN_STEP_TARGET = "min_step_target"
     }
 
     object RemoteConfigDefaults {

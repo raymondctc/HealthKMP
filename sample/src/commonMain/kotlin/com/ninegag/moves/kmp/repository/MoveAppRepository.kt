@@ -5,8 +5,6 @@ import com.ninegag.moves.kmp.model.firestore.FirestoreDailyRank
 import com.ninegag.moves.kmp.model.firestore.FirestoreUser
 import com.tweener.firebase.firestore.FirestoreService
 import com.tweener.firebase.firestore.model.FirestoreModel
-import com.tweener.firebase.auth.provider.google.FirebaseGoogleAuthProvider
-import com.tweener.firebase.remoteconfig.datasource.RemoteConfigDataSource
 import com.vitoksmile.kmp.health.HealthManager
 import com.vitoksmile.kmp.health.readSteps
 import io.github.aakira.napier.Napier
@@ -25,7 +23,6 @@ import com.vitoksmile.kmp.health.HealthDataType
 
 class MoveAppRepository : KoinComponent {
 
-    private val remoteConfig: RemoteConfigDataSource by inject()
     private val firestoreService: FirestoreService by inject()
     private val healthManager: HealthManager by inject()
 
@@ -116,19 +113,6 @@ class MoveAppRepository : KoinComponent {
         val stepCountsOfToday = stepList.getOrDefault(emptyList())
         println("HealthManager.readData result: $stepList")
         return stepCountsOfToday.sumOf { it.count }
-    }
-
-    suspend fun getMinStepTarget(): Int {
-        // Retrieve the value from Remote Config
-        val minStepTarget = remoteConfig.getLong(
-            "min_step_target",
-            defaultValue =6000
-        )
-        return minStepTarget.toInt()
-    }
-
-    // TODO: admin updates this
-    suspend fun updateMinStepTarget(newTarget: Int) {
     }
 
     private suspend inline fun <reified T: FirestoreModel> createOrUpdateCollection(

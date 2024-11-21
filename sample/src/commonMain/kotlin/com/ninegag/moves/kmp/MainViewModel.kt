@@ -236,16 +236,23 @@ class MainViewModel(
 
     suspend fun loadDailyTarget() {
         try {
-            val target = repository.getMinStepTarget()
+            val minStepTarget = remoteConfig.getLong(
+                key = Constants.RemoteConfigKeys.MIN_STEP_TARGET,
+                defaultValue = 6000
+            )
             _uiState.emit(
                 _uiState.value.copy(
-                    dailyTargetSteps = target
+                    dailyTargetSteps = minStepTarget.toInt()
                 )
             )
-            Napier.v { "Successfully loaded daily target: $target" }
+            Napier.v { "Successfully loaded daily target: $minStepTarget" }
         } catch (e: Exception) {
             Napier.e(tag = "loadDailyTarget", message = "Error loading daily target: ${e.message}")
         }
+    }
+
+    // TODO: admin updates this
+    suspend fun updateDailyTarget(newTarget: Int) {
     }
 
     suspend fun mayCreateUserDoc() {
