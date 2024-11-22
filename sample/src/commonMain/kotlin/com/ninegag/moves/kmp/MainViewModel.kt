@@ -222,23 +222,11 @@ class MainViewModel(
         targetStepsList = Json.decodeFromString<List<StepTicketBucket>>(dailyTarget)
         val currentDaySteps = _uiState.value.currentDaySteps
 
-        // Determine reward tickets based on currentDaySteps
-        var currentReward = 0
-        var dailyTargetStepsBucket = targetStepsList.first().stepsMin
-        for (i in targetStepsList.indices) {
-            val target = targetStepsList[i]
 
-            if (i == 0 && currentDaySteps < target.stepsMin) {
-                currentReward = 0
-                dailyTargetStepsBucket = target.stepsMin
-            } else if (i == targetStepsList.lastIndex && currentDaySteps >= target.stepsMin) {
-                currentReward = target.tickets
-                dailyTargetStepsBucket = target.stepsMin
-            } else if (currentDaySteps in target.stepsMin..target.stepsMax) {
-                currentReward = target.tickets
-                dailyTargetStepsBucket = target.stepsMax + 1
-                break
-            }
+        val bucket = targetStepsList.find { currentDaySteps in it.stepsMin..it.stepsMax }
+        val currentReward = bucket?.tickets ?: 0
+        val nextTarget = targetStepsList.indexOfFirst { currentDaySteps < it.stepsMin }.let { index ->
+            if (index != -1) targetStepsList[index].stepsMin else bucket?.stepsMin ?: 0
         }
 
         _uiState.emit(
