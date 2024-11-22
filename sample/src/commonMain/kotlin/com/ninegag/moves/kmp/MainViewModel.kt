@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import com.ninegag.moves.kmp.repository.MoveAppRepository
 import com.ninegag.moves.kmp.model.ChallengePeriod
 import com.ninegag.moves.kmp.model.StepTicketBucket
+import com.ninegag.moves.kmp.model.StepTicketBucketUiValues
 import com.ninegag.moves.kmp.model.User
 import com.ninegag.moves.kmp.utils.numberOfDays
+import com.ninegag.moves.kmp.utils.toThousandSeparatedString
 import com.tweener.firebase.auth.provider.google.FirebaseGoogleAuthProvider
 import com.tweener.firebase.remoteconfig.datasource.RemoteConfigDataSource
 import com.vitoksmile.kmp.health.HealthDataType
@@ -39,7 +41,8 @@ data class UiState(
     val currentDaySteps: Int,
     val dailyTargetSteps: Int, // minimum daily target
     val currentReward: Int, // calculated reward tickets
-    val challengePeriod: ChallengePeriod
+    val challengePeriod: ChallengePeriod,
+    val stepTicketBucket: List<StepTicketBucketUiValues>
 )
 
 class MainViewModel(
@@ -52,6 +55,7 @@ class MainViewModel(
     private val repository: MoveAppRepository by inject()
     private val remoteConfig: RemoteConfigDataSource by inject()
     private var targetStepsList: List<StepTicketBucket> = emptyList()
+    private val targetStepsListUiValues: List<StepTicketBucketUiValues> = emptyList()
     private var stepsList: Map<String, Int>? = null
     private var isAuthorized: Boolean = false
     private var user: User? = null
@@ -65,7 +69,8 @@ class MainViewModel(
             currentDaySteps = 0,
             dailyTargetSteps = 0,
             currentReward = 0,
-            challengePeriod = getChallengePeriod()
+            challengePeriod = getChallengePeriod(),
+            stepTicketBucket = getTargetStepsListUiValues()
         )
     )
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
@@ -103,7 +108,8 @@ class MainViewModel(
             _uiState.value.currentDaySteps,
             _uiState.value.dailyTargetSteps,
             _uiState.value.currentReward,
-            _uiState.value.challengePeriod
+            _uiState.value.challengePeriod,
+            _uiState.value.stepTicketBucket
         )
         loadDailyTarget()
         loadDailyReward()
@@ -162,7 +168,8 @@ class MainViewModel(
                     currentDaySteps = _uiState.value.currentDaySteps,
                     dailyTargetSteps = _uiState.value.dailyTargetSteps,
                     currentReward = _uiState.value.currentReward,
-                    challengePeriod = getChallengePeriod()
+                    challengePeriod = getChallengePeriod(),
+                    stepTicketBucket = getTargetStepsListUiValues()
                 ),
             )
         }
@@ -181,7 +188,8 @@ class MainViewModel(
                 currentDaySteps = 0,
                 dailyTargetSteps = 0,
                 challengePeriod = getChallengePeriod(),
-                currentReward = 0
+                currentReward = 0,
+                stepTicketBucket = getTargetStepsListUiValues()
             )
         )
     }
@@ -224,7 +232,8 @@ class MainViewModel(
 
         _uiState.emit(
             _uiState.value.copy(
-                currentReward = currentReward
+                currentReward = currentReward,
+                stepTicketBucket = getTargetStepsListUiValues()
             )
         )
 
@@ -293,5 +302,15 @@ class MainViewModel(
      */
     private suspend fun mayCreateUserCollection() {
         repository.createOrUpdateUserCollection(user, isAuthorized)
+    }
+
+    private fun getTargetStepsListUiValues(): List<StepTicketBucketUiValues> {
+        return targetStepsList.map {
+            StepTicketBucketUiValues(
+                stepsMin = it.stepsMin.toThousandSeparatedString(),
+                stepsMax = it.stepsMax.toThousandSeparatedString(),
+                tickets = it.tickets.toString()
+            )
+        }
     }
 }

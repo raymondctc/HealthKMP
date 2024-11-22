@@ -9,3 +9,9 @@ data class StepTicketBucket(
     @SerialName("steps_max") val stepsMax: Int,
     val tickets: Int
 )
+
+data class StepTicketBucketUiValues(
+    val stepsMin: String,
+    val stepsMax: String,
+    val tickets: String
+)
