@@ -12,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.ninegag.moves.kmp.MainViewModel
 import com.ninegag.moves.kmp.ui.challenge.ChallengePeriodHeader
-import com.ninegag.moves.kmp.ui.challenge.RewardsDetails
 import com.ninegag.moves.kmp.ui.challenge.TargetHeader
 import kotlinx.coroutines.launch
 
@@ -63,7 +62,6 @@ fun MainPage(
         item {
             TargetHeader(
                 currentTarget = uiState.dailyTargetSteps,
-                currentRewards = 1,
                 currentProgress = uiState.currentDaySteps,
                 currentReward = uiState.currentReward
             )

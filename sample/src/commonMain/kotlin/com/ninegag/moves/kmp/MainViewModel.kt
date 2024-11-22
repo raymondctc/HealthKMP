@@ -112,8 +112,8 @@ class MainViewModel(
             _uiState.value.stepTicketBucket
         )
         loadDailyTarget()
-        loadDailyReward()
         loadStepCount()
+        loadDailyReward()
     }
 
     suspend fun requestAuthorization() {
@@ -213,6 +213,7 @@ class MainViewModel(
     }
 
     suspend fun loadDailyReward() {
+
         val dailyTarget = remoteConfig.getString(
             Constants.RemoteConfigKeys.DAILT_TARGET_TICKET,
             Constants.RemoteConfigDefaults.DEFAULT_TARGET_TICKET
@@ -223,16 +224,28 @@ class MainViewModel(
 
         // Determine reward tickets based on currentDaySteps
         var currentReward = 0
-        for (target in targetStepsList) {
-            if (currentDaySteps in target.stepsMin..target.stepsMax) {
+        var dailyTargetStepsBucket = targetStepsList.first().stepsMin
+        for (i in targetStepsList.indices) {
+            val target = targetStepsList[i]
+
+            if (i == 0 && currentDaySteps < target.stepsMin) {
+                currentReward = 0
+                dailyTargetStepsBucket = target.stepsMin
+            } else if (i == targetStepsList.lastIndex && currentDaySteps >= target.stepsMin) {
                 currentReward = target.tickets
+                dailyTargetStepsBucket = target.stepsMin
+            } else if (currentDaySteps in target.stepsMin..target.stepsMax) {
+                currentReward = target.tickets
+                dailyTargetStepsBucket = target.stepsMax + 1
                 break
             }
         }
 
         _uiState.emit(
             _uiState.value.copy(
+                currentDaySteps = currentDaySteps,
                 currentReward = currentReward,
+                dailyTargetSteps = dailyTargetStepsBucket,
                 stepTicketBucket = getTargetStepsListUiValues()
             )
         )

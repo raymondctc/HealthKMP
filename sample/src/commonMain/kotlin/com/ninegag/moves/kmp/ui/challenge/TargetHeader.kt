@@ -19,7 +19,6 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun TargetHeader(
     currentTarget: Int,
-    currentRewards: Int,
     currentProgress: Int,
     currentReward: Int
 ) {
