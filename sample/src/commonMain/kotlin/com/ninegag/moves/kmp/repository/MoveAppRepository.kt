@@ -94,7 +94,7 @@ class MoveAppRepository : KoinComponent {
         )
 
         createOrUpdateCollection<FirestoreDailyRank>(
-            collection = "steps",
+            collection = Firestore.Collections.STEPS,
             documentId = "${user.email}/${Firestore.Collections.MONTHLY_STEPS}/$monthString",
             data = data
         )
