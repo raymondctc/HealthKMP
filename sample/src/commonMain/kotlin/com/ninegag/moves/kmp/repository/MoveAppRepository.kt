@@ -19,6 +19,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import kotlin.time.Duration.Companion.days
 import com.ninegag.moves.kmp.Constants.Firestore
+import com.ninegag.moves.kmp.model.firestore.FirestoreTickets
 import com.vitoksmile.kmp.health.HealthDataType
 
 class MoveAppRepository : KoinComponent {
@@ -98,6 +99,23 @@ class MoveAppRepository : KoinComponent {
             documentId = "${user.email}/${Firestore.Collections.MONTHLY_STEPS}/$monthString",
             data = data
         )
+    }
+
+    suspend fun createOrUpdateTicketsCollection(user: User, tickets: Int) {
+        val data = mapOf(
+            Firestore.CollectionFields.EMAIL to user.email,
+            Firestore.CollectionFields.TOTAL_TICKETS_EARNED to tickets.toLong()
+        )
+        createOrUpdateCollection<FirestoreTickets>(
+            collection = Firestore.Collections.TICKETS,
+            documentId = user.email,
+            data = data
+        )
+    }
+
+    suspend fun getTotalTicketsEarned(user: User): Int {
+        val ticketsDoc = firestoreService.get<FirestoreTickets>(Firestore.Collections.TICKETS, user.email)
+        return ticketsDoc.totalTicketsEarned.toInt()
     }
 
     /**

@@ -44,6 +44,7 @@ object Constants {
         object Collections {
             const val USER = "users"
             const val STEPS = "steps"
+            const val TICKETS = "tickets"
 
             const val DAILY_STEPS = "daily_steps"
             const val WEEKLY_STEPS = "weekly_steps"
@@ -56,10 +57,6 @@ object Constants {
             val AVATAR_URL = "avatarUrl"
             val STEPS = "steps"
             val TOTAL_TICKETS_EARNED = "totalTicketsEarned" // in current challenge period
-            val CHALLENGE_PERIOD = "challengePeriod"
-
-            val START = "start" // of challengePeriod
-            val END = "end" // of challengePeriod
         }
 
     }
