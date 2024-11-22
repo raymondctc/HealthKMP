@@ -24,6 +24,14 @@ kotlin {
         }
     }
 
+    // https://youtrack.jetbrains.com/issue/KT-42254
+    // Fix iOS building to real device's issue of "Duplicate symbols"
+    targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget> {
+        binaries.withType<org.jetbrains.kotlin.gradle.plugin.mpp.Framework> {
+            isStatic = false
+        }
+    }
+
     cocoapods {
         name = "HealthKMPSample"
         version = "0.0.3"
