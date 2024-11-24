@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.ninegag.moves.kmp.utils.toThousandSeparatedString
 
 @Composable
 fun TargetHeader(
@@ -45,14 +46,16 @@ fun TargetHeader(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Steps:", style = MaterialTheme.typography.labelLarge)
-                Text("$currentProgress / $currentTarget", style = MaterialTheme.typography.bodyLarge)
+                Text("${currentProgress.toThousandSeparatedString()} / ${currentTarget.toThousandSeparatedString()}",
+                    style = MaterialTheme.typography.bodyLarge
+                )
             }
             Row(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Ticket(s) earned:", style = MaterialTheme.typography.labelLarge)
-                Text("$currentReward", style = MaterialTheme.typography.bodyLarge)
+                Text(currentReward.toThousandSeparatedString(), style = MaterialTheme.typography.bodyLarge)
             }
         }
 

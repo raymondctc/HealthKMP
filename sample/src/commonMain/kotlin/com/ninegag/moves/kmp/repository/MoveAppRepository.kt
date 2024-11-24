@@ -1,5 +1,6 @@
 package com.ninegag.moves.kmp.repository
 
+import com.ninegag.moves.kmp.Constants
 import com.ninegag.moves.kmp.model.User
 import com.ninegag.moves.kmp.model.firestore.FirestoreDailyRank
 import com.ninegag.moves.kmp.model.firestore.FirestoreUser
@@ -19,14 +20,30 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import kotlin.time.Duration.Companion.days
 import com.ninegag.moves.kmp.Constants.Firestore
-import com.ninegag.moves.kmp.model.firestore.FirestoreTickets
-import com.vitoksmile.kmp.health.HealthDataType
+import com.ninegag.moves.kmp.model.StepTicketBucket
+import com.ninegag.moves.kmp.model.firestore.FirestoreMonthlyRank
+import com.ninegag.moves.kmp.utils.toDailyStepsDateString
+import com.ninegag.moves.kmp.utils.toMonthlyStepsDateString
+import com.tweener.firebase.remoteconfig.datasource.RemoteConfigDataSource
+import kotlinx.serialization.json.Json
 
 class MoveAppRepository : KoinComponent {
 
+    private val remoteConfigService: RemoteConfigDataSource by inject()
     private val firestoreService: FirestoreService by inject()
     private val healthManager: HealthManager by inject()
 
+    suspend fun getTargetConfigs(): List<StepTicketBucket> {
+        val dailyTarget = remoteConfigService.getString(
+            Constants.RemoteConfigKeys.DAILT_TARGET_TICKET,
+            Constants.RemoteConfigDefaults.DEFAULT_TARGET_TICKET
+        )
+        return Json.decodeFromString<List<StepTicketBucket>>(dailyTarget)
+    }
+
+    /**
+     * To update user's profile on Firebase
+     */
     suspend fun createOrUpdateUserCollection(
         user: User?,
         isAuthorized: Boolean
@@ -48,9 +65,7 @@ class MoveAppRepository : KoinComponent {
         )
     }
 
-    suspend fun createOrUpdateStepsCollection(
-        user: User
-    ) {
+    suspend fun getStepsFromStartOfMonthToToday(): Map<String, Int> {
         val linkedHashMap = LinkedHashMap<String, Int>()
         val now = Clock.System.now()
         val localDateTime = now.toLocalDateTime(TimeZone.currentSystemDefault())
@@ -65,57 +80,59 @@ class MoveAppRepository : KoinComponent {
             val start = date.atStartOfDayIn(TimeZone.currentSystemDefault())
             val end = date.atTime(hour = 23, minute = 59, second = 59, nanosecond = 999999999)
                 .toInstant(TimeZone.currentSystemDefault())
-            val dateString = "${curr.year}-${curr.monthNumber.toString().padStart(2, '0')}-${curr.dayOfMonth.toString().padStart(2, '0')}"
+            val dateString = curr.toDailyStepsDateString()
 
             val stepList = healthManager.readSteps(start, end)
             val stepCountsOfCurrDate = stepList.getOrDefault(emptyList())
 
             linkedHashMap[dateString] = stepCountsOfCurrDate.sumOf { it.count }
+        }
 
+        return linkedHashMap
+    }
+
+    /**
+     * To update user's steps on Firebase from start of the month to today
+     *
+     * @param user User object
+     * @param stepsMap Map of date string to step count
+     */
+    suspend fun createOrUpdateStepsCollection(
+        user: User,
+        stepsMap: Map<String, Int>
+    ) {
+        var monthToDateSteps = 0
+        for ((key, value) in stepsMap) {
             val data = mapOf(
                 Firestore.CollectionFields.USERNAME to user.name,
                 Firestore.CollectionFields.EMAIL to user.email,
                 Firestore.CollectionFields.AVATAR_URL to user.avatarUrl,
-                Firestore.CollectionFields.STEPS to linkedHashMap[dateString]
+                Firestore.CollectionFields.STEPS to value
             )
-
             createOrUpdateCollection<FirestoreDailyRank>(
                 collection = Firestore.Collections.STEPS,
-                documentId = "${user.email}/${Firestore.Collections.DAILY_STEPS}/$dateString",
+                documentId = "${user.email}/${Firestore.Collections.DAILY_STEPS}/$key",
                 data = data
             )
+
+            monthToDateSteps += value
         }
 
-        val monthString = "${localDateTime.year}-${localDateTime.monthNumber.toString().padStart(2, '0')}"
+        val now = Clock.System.now()
+        val localDateTime = now.toLocalDateTime(TimeZone.currentSystemDefault())
+        val monthString = localDateTime.toMonthlyStepsDateString()
         val data = mapOf(
             Firestore.CollectionFields.USERNAME to user.name,
             Firestore.CollectionFields.EMAIL to user.email,
             Firestore.CollectionFields.AVATAR_URL to user.avatarUrl,
-            Firestore.CollectionFields.STEPS to linkedHashMap.entries.sumOf { it.value }
+            Firestore.CollectionFields.STEPS to monthToDateSteps
         )
 
-        createOrUpdateCollection<FirestoreDailyRank>(
+        createOrUpdateCollection<FirestoreMonthlyRank>(
             collection = Firestore.Collections.STEPS,
             documentId = "${user.email}/${Firestore.Collections.MONTHLY_STEPS}/$monthString",
             data = data
         )
-    }
-
-    suspend fun createOrUpdateTicketsCollection(user: User, tickets: Int) {
-        val data = mapOf(
-            Firestore.CollectionFields.EMAIL to user.email,
-            Firestore.CollectionFields.TOTAL_TICKETS_EARNED to tickets.toLong()
-        )
-        createOrUpdateCollection<FirestoreTickets>(
-            collection = Firestore.Collections.TICKETS,
-            documentId = user.email,
-            data = data
-        )
-    }
-
-    suspend fun getTotalTicketsEarned(user: User): Int {
-        val ticketsDoc = firestoreService.get<FirestoreTickets>(Firestore.Collections.TICKETS, user.email)
-        return ticketsDoc.totalTicketsEarned.toInt()
     }
 
     /**

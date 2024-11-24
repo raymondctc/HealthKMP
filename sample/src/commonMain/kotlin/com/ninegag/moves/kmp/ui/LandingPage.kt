@@ -33,6 +33,7 @@ fun LandingPage(
             onClick = {
                 viewModel.viewModelScope.launch {
                     viewModel.signIn()
+                    viewModel.loadStepCount()
                 }
             }
         ) {

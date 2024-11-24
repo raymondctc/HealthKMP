@@ -41,6 +41,7 @@ fun MainPage(
                     onClick = {
                         coroutineScope.launch {
                             viewModel.requestAuthorization()
+                            viewModel.loadStepCount()
                         }
                     }
                 ) {
@@ -48,24 +49,23 @@ fun MainPage(
                 }
             }
         }
-        item {
-            ChallengePeriodHeader(
-                challengePeriod = uiState.challengePeriod,
-                stepTicketBucket = uiState.stepTicketBucket
-            )
+
+        if (uiState.isAuthorized) {
+            item {
+                ChallengePeriodHeader(
+                    challengePeriod = uiState.challengePeriod,
+                    stepTicketBucket = uiState.stepTicketBucket
+                )
+            }
+            item {
+                TargetHeader(
+                    currentTarget = uiState.dailyTargetSteps,
+                    currentProgress = uiState.currentDaySteps,
+                    currentReward = uiState.currentReward
+                )
+            }
         }
-//        item {
-//            RewardsDetails(
-//                stepTicketBucket = uiState.stepTicketBucket
-//            )
-//        }
-        item {
-            TargetHeader(
-                currentTarget = uiState.dailyTargetSteps,
-                currentProgress = uiState.currentDaySteps,
-                currentReward = uiState.currentReward
-            )
-        }
+
         item {
             Button(
                 onClick = {

@@ -34,7 +34,6 @@ fun MoveApp(
 
     LaunchedEffect("init") {
         viewModel.loadUser()
-        viewModel.mayCreateUserDoc()
         viewModel.loadStepCount()
     }
 

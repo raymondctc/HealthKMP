@@ -56,6 +56,7 @@ object Constants {
             val EMAIL = "email"
             val AVATAR_URL = "avatarUrl"
             val STEPS = "steps"
+            val TICKETS = "tickets"
             val TOTAL_TICKETS_EARNED = "totalTicketsEarned" // in current challenge period
         }
 
