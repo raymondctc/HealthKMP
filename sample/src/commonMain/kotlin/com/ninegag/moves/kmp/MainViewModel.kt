@@ -169,12 +169,7 @@ class MainViewModel(
         }
 
         user?.let { u ->
-            val stepsMap = repository.getStepsFromStartOfMonthToToday()
-            val now = Clock.System.now()
-            val localDateTime = now.toLocalDateTime(TimeZone.currentSystemDefault())
-            val dateString = localDateTime.toDailyStepsDateString()
-            val todayStepCount = stepsMap[dateString] ?: 0
-
+            val todayStepCount = repository.getStepsForToday()
             val targetStepsList = repository.getTargetConfigs()
             val bucket = targetStepsList.find { todayStepCount in it.stepsMin..it.stepsMax }
             val currentReward = bucket?.tickets ?: 0
@@ -184,7 +179,6 @@ class MainViewModel(
 
             _uiState.emit(
                 _uiState.value.copy(
-                    stepsRecord = stepsMap,
                     currentReward = currentReward,
                     currentDaySteps = todayStepCount,
                     dailyTargetSteps = nextTarget,
@@ -195,6 +189,13 @@ class MainViewModel(
                             tickets = item.tickets.toString()
                         )
                     }
+                )
+            )
+
+            val stepsMap = repository.getStepsFromStartOfMonthToToday()
+            _uiState.emit(
+                _uiState.value.copy(
+                    stepsRecord = stepsMap
                 )
             )
 

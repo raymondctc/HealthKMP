@@ -27,6 +27,7 @@ import com.ninegag.moves.kmp.utils.toMonthlyStepsDateString
 import com.tweener.firebase.remoteconfig.datasource.RemoteConfigDataSource
 import com.vitoksmile.kmp.health.records.StepsRecord
 import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.json.Json
 import kotlin.random.Random
 
@@ -35,6 +36,7 @@ class MoveAppRepository : KoinComponent {
     private val remoteConfigService: RemoteConfigDataSource by inject()
     private val firestoreService: FirestoreService by inject()
     private val healthManager: HealthManager by inject()
+    private val tz = TimeZone.currentSystemDefault()
 
     suspend fun getTargetConfigs(): List<StepTicketBucket> {
         val dailyTarget = remoteConfigService.getString(
@@ -68,20 +70,36 @@ class MoveAppRepository : KoinComponent {
         )
     }
 
-    suspend fun getStepsFromStartOfMonthToToday(): Map<String, Int> {
-        val linkedHashMap = LinkedHashMap<String, Int>()
+    private fun getToday(): LocalDateTime {
         val now = Clock.System.now()
         val tz = TimeZone.currentSystemDefault()
         val localDateTime = now.toLocalDateTime(tz)
-        val startOfMonth = LocalDate(localDateTime.year, localDateTime.monthNumber, 1).atStartOfDayIn(TimeZone.currentSystemDefault())
-        val diff = localDateTime.toInstant(TimeZone.currentSystemDefault()).minus(startOfMonth)
+        return localDateTime
+    }
+
+    suspend fun getStepsForToday(): Int {
+        val today = getToday()
+        val start = LocalDate(today.year, today.monthNumber, today.dayOfMonth).atStartOfDayIn(tz)
+        val steps = healthManager.readSteps(
+            startTime = start,
+            endTime = today.toInstant(tz)
+        )
+
+        return steps.getOrDefault(emptyList()).sumOf { it.count }
+    }
+
+    suspend fun getStepsFromStartOfMonthToToday(): Map<String, Int> {
+        val linkedHashMap = LinkedHashMap<String, Int>()
+        val localDateTime = getToday()
+        val startOfMonth = LocalDate(localDateTime.year, localDateTime.monthNumber, 1).atStartOfDayIn(tz)
+        val diff = localDateTime.toInstant(tz).minus(startOfMonth)
         val daysDuration = diff.inWholeDays.days
 
-        for (i in 0 .. daysDuration.inWholeDays + 1) {
+        for (i in 0 .. daysDuration.inWholeDays) {
             val curr = startOfMonth.plus(i.days).toLocalDateTime(tz)
             val date = LocalDate(curr.year, curr.monthNumber, curr.dayOfMonth)
 
-            val start = date.atStartOfDayIn(TimeZone.currentSystemDefault())
+            val start = date.atStartOfDayIn(tz)
             val end = date.atTime(hour = 23, minute = 59, second = 59, nanosecond = 999999999)
                 .toInstant(TimeZone.currentSystemDefault())
             val dateString = curr.toDailyStepsDateString()
@@ -123,7 +141,7 @@ class MoveAppRepository : KoinComponent {
         }
 
         val now = Clock.System.now()
-        val localDateTime = now.toLocalDateTime(TimeZone.currentSystemDefault())
+        val localDateTime = now.toLocalDateTime(tz)
         val monthString = localDateTime.toMonthlyStepsDateString()
         val data = mapOf(
             Firestore.CollectionFields.USERNAME to user.name,
@@ -166,7 +184,7 @@ class MoveAppRepository : KoinComponent {
     ) {
         try {
             // TODO: Library doesn't allow to return a nullable user to check existence, doing this a try-catch
-            firestoreService.get<FirestoreDailyRank>(collection, documentId)
+            firestoreService.get<T>(collection, documentId)
             firestoreService.update(collection, documentId, data)
         } catch (e: Exception) {
             Napier.v(tag = "FirestoreOp", message = "Collection=${collection}, documentId=${documentId} doesn't exist, now creating collection")
