@@ -1,5 +1,8 @@
 @file:Suppress("UNUSED_VARIABLE")
 
+import java.util.Properties
+
+
 plugins {
     kotlin("multiplatform")
     id("com.android.application")
@@ -39,12 +42,26 @@ android {
         versionCode = 1
         versionName = "1.0"
     }
+
+    signingConfigs {
+        create("release") {
+            val properties = Properties().apply {
+                load(File("$rootDir/signing.properties").reader())
+            }
+            storeFile = file("$rootDir/${properties.getProperty("storeFilePath")}")
+            storePassword = properties.getProperty("storePassword")
+            keyPassword = properties.getProperty("keyPassword")
+            keyAlias = properties.getProperty("keyAlias")
+        }
+    }
+
     dependencies {
         coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.2")
     }
     buildTypes {
         getByName("release") {
             isMinifyEnabled = true
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
 
