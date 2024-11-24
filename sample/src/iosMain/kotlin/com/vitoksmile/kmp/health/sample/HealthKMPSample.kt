@@ -19,17 +19,47 @@ import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
+import platform.Foundation.NSBundle
+import platform.Foundation.NSDictionary
+import platform.Foundation.dictionaryWithContentsOfFile
 
 object HealthKMPSample {
+    object GoogleServiceInfo {
+        private val cachedValues: Map<String, String> by lazy {
+            loadPlistValues()
+        }
+
+        private fun loadPlistValues(): Map<String, String> {
+            val mainBundle = NSBundle.mainBundle
+            val path = mainBundle.pathForResource("GoogleService-Info", "plist") ?: error("GoogleService-Info.plist not found")
+            val dict = NSDictionary.dictionaryWithContentsOfFile(path) as? Map<*, *>
+                ?: error("Failed to load GoogleService-Info.plist")
+            return dict.filterKeys { it is String }.mapKeys { (key, _) -> key as String }
+                .filterValues { it is String }.mapValues { (_, value) -> value as String }
+        }
+
+        fun getValue(key: String): String? = cachedValues[key]
+    }
+
     fun start() {
         Napier.base(DebugAntilog())
         Napier.d { "Debug log, started!" }
-        Firebase.initialize(options = FirebaseOptions(
-            applicationId = "1:233233604356:ios:95529c1ce0dc7e0752fa51",
-            apiKey = "AIzaSyA6cI-ouqP_5Gh65ojdKV6C869guvaN_nc",
-            projectId = "ninegag-move-test",
-            gcmSenderId = "233233604356"
-        ))
+
+        val applicationId = GoogleServiceInfo.getValue("GOOGLE_APP_ID") ?: error("GOOGLE_APP_ID not found")
+        val apiKey = GoogleServiceInfo.getValue("API_KEY") ?: error("API_KEY not found")
+        val projectId = GoogleServiceInfo.getValue("PROJECT_ID") ?: error("PROJECT_ID not found")
+        val gcmSenderId = GoogleServiceInfo.getValue("GCM_SENDER_ID") ?: error("GCM_SENDER_ID not found")
+
+        Napier.d { "applicationId=${applicationId}, apiKey=${apiKey}, projectId=${projectId}, gcmSenderId=${gcmSenderId}" }
+
+        Firebase.initialize(
+            options = FirebaseOptions(
+                applicationId = applicationId,
+                apiKey = apiKey,
+                projectId = projectId,
+                gcmSenderId = gcmSenderId
+            )
+        )
         startKoin {
             modules(
                 module {
@@ -44,7 +74,10 @@ object HealthKMPSample {
     }
 
     fun MainViewController() = ComposeUIViewController {
-        val authProvider = FirebaseGoogleAuthProviderIos(serverClientId = "1:233233604356:ios:95529c1ce0dc7e0752fa51")
+        val applicationId = GoogleServiceInfo.getValue("GOOGLE_APP_ID") ?: error("GOOGLE_APP_ID not found")
+        val authProvider = FirebaseGoogleAuthProviderIos(
+            serverClientId = applicationId
+        )
         MoveApp(
             viewModel = viewModel { MainViewModel(authProvider) }
         )

@@ -1,20 +1,56 @@
 {
   "project_info": {
-    "project_number": "233233604356",
-    "project_id": "ninegag-move-test",
-    "storage_bucket": "ninegag-move-test.firebasestorage.app"
+    "project_number": "639527318469",
+    "project_id": "ninegag-moves",
+    "storage_bucket": "ninegag-moves.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:233233604356:android:c3283ecdf3fbc8de52fa51",
+        "mobilesdk_app_id": "1:639527318469:android:09a655177409424a0511ac",
+        "android_client_info": {
+          "package_name": "com.ninegag.moves.android.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "639527318469-cf05cumnu0e4uep0c1u0pfdc39fv64jm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDD9XwIEToR2Aq3G5EyJR4120OHRcKnGh0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "639527318469-cf05cumnu0e4uep0c1u0pfdc39fv64jm.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "639527318469-lnidcsaqlcl14e5q6aprmcmql18o97bc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ninegag.moves.ios.app"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:639527318469:android:c31a3122b7bd81e50511ac",
         "android_client_info": {
           "package_name": "com.ninegag.moves.android.app.dev"
         }
       },
       "oauth_client": [
         {
-          "client_id": "233233604356-aqfv9o2qg5i9mekh5l3s8s7qvijvvno9.apps.googleusercontent.com",
+          "client_id": "639527318469-qoln2q3p34rmgmfoleiklaur6ir07ic7.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.ninegag.moves.android.app.dev",
@@ -22,27 +58,27 @@
           }
         },
         {
-          "client_id": "233233604356-atbu1ckn6uh00dj87ufch6a7s30u9mas.apps.googleusercontent.com",
+          "client_id": "639527318469-cf05cumnu0e4uep0c1u0pfdc39fv64jm.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBiLm-LAectRAH0p2iuBKGPDocrHnaiyTs"
+          "current_key": "AIzaSyDD9XwIEToR2Aq3G5EyJR4120OHRcKnGh0"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "233233604356-atbu1ckn6uh00dj87ufch6a7s30u9mas.apps.googleusercontent.com",
+              "client_id": "639527318469-cf05cumnu0e4uep0c1u0pfdc39fv64jm.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "233233604356-ailkook4kh9avr3smuibmjitsi3dlro0.apps.googleusercontent.com",
+              "client_id": "639527318469-lnidcsaqlcl14e5q6aprmcmql18o97bc.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.ninegag.move.app"
+                "bundle_id": "com.ninegag.moves.ios.app"
               }
             }
           ]
