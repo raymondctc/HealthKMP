@@ -168,7 +168,7 @@ class MainViewModel(
             return;
         }
 
-        user?.let {
+        user?.let { u ->
             val stepsMap = repository.getStepsFromStartOfMonthToToday()
             val now = Clock.System.now()
             val localDateTime = now.toLocalDateTime(TimeZone.currentSystemDefault())
@@ -198,7 +198,7 @@ class MainViewModel(
                 )
             )
 
-            repository.createOrUpdateStepsCollection(it, stepsMap)
+            repository.createOrUpdateStepsCollection(u, stepsMap)
         }
     }
 
@@ -215,5 +215,7 @@ class MainViewModel(
         )
         return challengePeriod
     }
+
+
 
 }

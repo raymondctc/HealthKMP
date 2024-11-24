@@ -25,7 +25,10 @@ import com.ninegag.moves.kmp.model.firestore.FirestoreMonthlyRank
 import com.ninegag.moves.kmp.utils.toDailyStepsDateString
 import com.ninegag.moves.kmp.utils.toMonthlyStepsDateString
 import com.tweener.firebase.remoteconfig.datasource.RemoteConfigDataSource
+import com.vitoksmile.kmp.health.records.StepsRecord
+import kotlinx.datetime.Instant
 import kotlinx.serialization.json.Json
+import kotlin.random.Random
 
 class MoveAppRepository : KoinComponent {
 
@@ -68,13 +71,14 @@ class MoveAppRepository : KoinComponent {
     suspend fun getStepsFromStartOfMonthToToday(): Map<String, Int> {
         val linkedHashMap = LinkedHashMap<String, Int>()
         val now = Clock.System.now()
-        val localDateTime = now.toLocalDateTime(TimeZone.currentSystemDefault())
+        val tz = TimeZone.currentSystemDefault()
+        val localDateTime = now.toLocalDateTime(tz)
         val startOfMonth = LocalDate(localDateTime.year, localDateTime.monthNumber, 1).atStartOfDayIn(TimeZone.currentSystemDefault())
         val diff = localDateTime.toInstant(TimeZone.currentSystemDefault()).minus(startOfMonth)
         val daysDuration = diff.inWholeDays.days
 
-        for (i in 0 .. daysDuration.inWholeDays) {
-            val curr = startOfMonth.plus(i.days).toLocalDateTime(TimeZone.currentSystemDefault())
+        for (i in 0 .. daysDuration.inWholeDays + 1) {
+            val curr = startOfMonth.plus(i.days).toLocalDateTime(tz)
             val date = LocalDate(curr.year, curr.monthNumber, curr.dayOfMonth)
 
             val start = date.atStartOfDayIn(TimeZone.currentSystemDefault())
@@ -135,19 +139,24 @@ class MoveAppRepository : KoinComponent {
         )
     }
 
-    /**
-     * TODO: ensure return data is correct w/ writeTypes
-     */
-    suspend fun getTodaySteps(): Int {
-        val now = Clock.System.now()
-        val today = now.toLocalDateTime(TimeZone.currentSystemDefault()).date
-        val start = today.atStartOfDayIn(TimeZone.currentSystemDefault())
-        val end = today.atTime(23, 59, 59).toInstant(TimeZone.currentSystemDefault())
 
-        val stepList = healthManager.readSteps(start, end)
-        val stepCountsOfToday = stepList.getOrDefault(emptyList())
-        println("HealthManager.readData result: $stepList")
-        return stepCountsOfToday.sumOf { it.count }
+    // For testing purpose
+    suspend fun writeRandomSteps(
+        start: Instant,
+        end: Instant,
+    ) {
+        val steps1 = Random.nextInt(10000)
+        val records = listOf(
+            StepsRecord(
+                startTime = start,
+                endTime = end,
+                count = steps1
+            ),
+        )
+
+        healthManager.writeData(records)
+
+        Napier.v { "writeRandomSteps, steps1=$steps1, \n" }
     }
 
     private suspend inline fun <reified T: FirestoreModel> createOrUpdateCollection(
