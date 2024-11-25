@@ -21,15 +21,23 @@ import org.koin.core.component.inject
 import kotlin.time.Duration.Companion.days
 import com.ninegag.moves.kmp.Constants.Firestore
 import com.ninegag.moves.kmp.model.StepTicketBucket
+import com.ninegag.moves.kmp.model.StepsAndTicketsRecord
 import com.ninegag.moves.kmp.model.firestore.FirestoreMonthlyRank
+import com.ninegag.moves.kmp.utils.suspendLazy
 import com.ninegag.moves.kmp.utils.toDailyStepsDateString
 import com.ninegag.moves.kmp.utils.toMonthlyStepsDateString
 import com.tweener.firebase.remoteconfig.datasource.RemoteConfigDataSource
 import com.vitoksmile.kmp.health.records.StepsRecord
+import kotlinx.coroutines.delay
+import kotlinx.datetime.DateTimePeriod
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.plus
 import kotlinx.serialization.json.Json
 import kotlin.random.Random
+
+typealias TicketsAndNextTarget = Pair<Int, Int>
 
 class MoveAppRepository : KoinComponent {
 
@@ -38,12 +46,22 @@ class MoveAppRepository : KoinComponent {
     private val healthManager: HealthManager by inject()
     private val tz = TimeZone.currentSystemDefault()
 
-    suspend fun getTargetConfigs(): List<StepTicketBucket> {
+    val targetStepsList = suspendLazy {
         val dailyTarget = remoteConfigService.getString(
             Constants.RemoteConfigKeys.DAILT_TARGET_TICKET,
             Constants.RemoteConfigDefaults.DEFAULT_TARGET_TICKET
         )
-        return Json.decodeFromString<List<StepTicketBucket>>(dailyTarget)
+        Json.decodeFromString<List<StepTicketBucket>>(dailyTarget)
+    }
+
+    suspend fun getTicketsEarnedForSteps(steps: Int): TicketsAndNextTarget {
+        val targets = targetStepsList.getValue()
+        val bucket = targets.find { steps in it.stepsMin..it.stepsMax }
+        val currentReward = bucket?.tickets ?: 0
+        val nextTarget = targets.indexOfFirst { steps < it.stepsMin }.let { index ->
+            if (index != -1) targets[index].stepsMin else bucket?.stepsMin ?: 0
+        }
+        return Pair(currentReward, nextTarget)
     }
 
     /**
@@ -88,8 +106,8 @@ class MoveAppRepository : KoinComponent {
         return steps.getOrDefault(emptyList()).sumOf { it.count }
     }
 
-    suspend fun getStepsFromStartOfMonthToToday(): Map<String, Int> {
-        val linkedHashMap = LinkedHashMap<String, Int>()
+    suspend fun getStepsFromStartOfMonthToToday(): Map<String, StepsAndTicketsRecord> {
+        val linkedHashMap = LinkedHashMap<String, StepsAndTicketsRecord>()
         val localDateTime = getToday()
         val startOfMonth = LocalDate(localDateTime.year, localDateTime.monthNumber, 1).atStartOfDayIn(tz)
         val diff = localDateTime.toInstant(tz).minus(startOfMonth)
@@ -101,13 +119,49 @@ class MoveAppRepository : KoinComponent {
 
             val start = date.atStartOfDayIn(tz)
             val end = date.atTime(hour = 23, minute = 59, second = 59, nanosecond = 999999999)
-                .toInstant(TimeZone.currentSystemDefault())
+                .toInstant(tz)
             val dateString = curr.toDailyStepsDateString()
 
             val stepList = healthManager.readSteps(start, end)
             val stepCountsOfCurrDate = stepList.getOrDefault(emptyList())
 
-            linkedHashMap[dateString] = stepCountsOfCurrDate.sumOf { it.count }
+            val steps = stepCountsOfCurrDate.sumOf { it.count }
+            linkedHashMap[dateString] = StepsAndTicketsRecord(
+                steps = steps,
+                tickets = getTicketsEarnedForSteps(steps).first
+            )
+        }
+
+        return linkedHashMap
+    }
+
+    suspend fun getPrevWeekStepsBeforeStartOfTheMonth(): Map<String, StepsAndTicketsRecord> {
+        val linkedHashMap = LinkedHashMap<String, StepsAndTicketsRecord>()
+        val localDateTime = getToday()
+        val startOfMonth = LocalDate(localDateTime.year, localDateTime.monthNumber, 1).atStartOfDayIn(tz)
+        val weekBeforeStartOfTheMonth = startOfMonth.minus(7.days)
+
+        val diff = startOfMonth.minus(weekBeforeStartOfTheMonth)
+        val daysDuration = diff.inWholeDays.days
+
+        for (i in 0 .. daysDuration.inWholeDays) {
+            val curr = weekBeforeStartOfTheMonth.plus(i.days).toLocalDateTime(tz)
+            val date = LocalDate(curr.year, curr.monthNumber, curr.dayOfMonth)
+
+            val start = date.atStartOfDayIn(tz)
+            val end = date.atTime(hour = 23, minute = 59, second = 59, nanosecond = 999999999)
+                .toInstant(tz)
+            val dateString = curr.toDailyStepsDateString()
+
+            val stepList = healthManager.readSteps(start, end)
+            val stepCountsOfCurrDate = stepList.getOrDefault(emptyList())
+
+            val steps = stepCountsOfCurrDate.sumOf { it.count }
+            linkedHashMap[dateString] = StepsAndTicketsRecord(
+                steps = steps,
+                tickets = getTicketsEarnedForSteps(steps).first
+            )
+
         }
 
         return linkedHashMap
@@ -121,15 +175,19 @@ class MoveAppRepository : KoinComponent {
      */
     suspend fun createOrUpdateStepsCollection(
         user: User,
-        stepsMap: Map<String, Int>
+        stepsMap: Map<String, StepsAndTicketsRecord>
     ) {
         var monthToDateSteps = 0
+        var monthToDateTickets = 0
         for ((key, value) in stepsMap) {
+            val steps = value.steps
+            val tickets = value.tickets
             val data = mapOf(
                 Firestore.CollectionFields.USERNAME to user.name,
                 Firestore.CollectionFields.EMAIL to user.email,
                 Firestore.CollectionFields.AVATAR_URL to user.avatarUrl,
-                Firestore.CollectionFields.STEPS to value
+                Firestore.CollectionFields.STEPS to steps,
+                Firestore.CollectionFields.TICKETS to tickets
             )
             createOrUpdateCollection<FirestoreDailyRank>(
                 collection = Firestore.Collections.STEPS,
@@ -137,7 +195,8 @@ class MoveAppRepository : KoinComponent {
                 data = data
             )
 
-            monthToDateSteps += value
+            monthToDateSteps += steps
+            monthToDateTickets += tickets
         }
 
         val now = Clock.System.now()
@@ -147,7 +206,8 @@ class MoveAppRepository : KoinComponent {
             Firestore.CollectionFields.USERNAME to user.name,
             Firestore.CollectionFields.EMAIL to user.email,
             Firestore.CollectionFields.AVATAR_URL to user.avatarUrl,
-            Firestore.CollectionFields.STEPS to monthToDateSteps
+            Firestore.CollectionFields.STEPS to monthToDateSteps,
+            Firestore.CollectionFields.TICKETS to monthToDateTickets
         )
 
         createOrUpdateCollection<FirestoreMonthlyRank>(

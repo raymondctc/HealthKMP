@@ -61,7 +61,8 @@ fun MainPage(
                 TargetHeader(
                     currentTarget = uiState.dailyTargetSteps,
                     currentProgress = uiState.currentDaySteps,
-                    currentReward = uiState.currentReward
+                    currentReward = uiState.currentReward,
+                    stepsAndTicketsRecord = uiState.stepsRecord
                 )
             }
         }

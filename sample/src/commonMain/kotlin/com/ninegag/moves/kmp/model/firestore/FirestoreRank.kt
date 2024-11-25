@@ -10,6 +10,7 @@ data class FirestoreDailyRank(
     val email: String,
     val avatarUrl: String,
     val steps: Int,
+    val tickets: Int,
 ): FirestoreModel()
 
 @Serializable
@@ -19,6 +20,7 @@ data class FirestoreWeeklyRank(
     val email: String,
     val avatarUrl: String,
     val steps: Int,
+    val tickets: Int,
 ): FirestoreModel()
 
 @Serializable
@@ -28,4 +30,5 @@ data class FirestoreMonthlyRank(
     val email: String,
     val avatarUrl: String,
     val steps: Int,
+    val tickets: Int,
 ): FirestoreModel()

@@ -15,14 +15,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.ninegag.moves.kmp.model.StepsAndTicketsRecord
 import com.ninegag.moves.kmp.utils.toThousandSeparatedString
 
 @Composable
 fun TargetHeader(
     currentTarget: Int,
     currentProgress: Int,
-    currentReward: Int
+    currentReward: Int,
+    stepsAndTicketsRecord: Map<String, StepsAndTicketsRecord>
 ) {
+
+    val totalSteps = stepsAndTicketsRecord.values.sumOf { it.steps }
+    val totalTickets = stepsAndTicketsRecord.values.sumOf { it.tickets }
+
     // Target: 6000 steps
     // Rewards: 1 ticket
     // Progress: N steps (N%)
@@ -54,8 +60,24 @@ fun TargetHeader(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                Text("Total Steps:", style = MaterialTheme.typography.labelLarge)
+                Text(totalSteps.toThousandSeparatedString(),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text("Ticket(s) earned:", style = MaterialTheme.typography.labelLarge)
                 Text(currentReward.toThousandSeparatedString(), style = MaterialTheme.typography.bodyLarge)
+            }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Total ticket(s) earned:", style = MaterialTheme.typography.labelLarge)
+                Text(totalTickets.toThousandSeparatedString(), style = MaterialTheme.typography.bodyLarge)
             }
         }
 

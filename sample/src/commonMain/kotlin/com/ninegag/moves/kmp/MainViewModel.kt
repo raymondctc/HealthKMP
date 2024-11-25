@@ -5,11 +5,13 @@ import com.ninegag.moves.kmp.repository.MoveAppRepository
 import com.ninegag.moves.kmp.model.ChallengePeriod
 import com.ninegag.moves.kmp.model.StepTicketBucket
 import com.ninegag.moves.kmp.model.StepTicketBucketUiValues
+import com.ninegag.moves.kmp.model.StepsAndTicketsRecord
 import com.ninegag.moves.kmp.model.User
 import com.ninegag.moves.kmp.utils.numberOfDays
 import com.ninegag.moves.kmp.utils.toDailyStepsDateString
 import com.ninegag.moves.kmp.utils.toThousandSeparatedString
 import com.tweener.firebase.auth.provider.google.FirebaseGoogleAuthProvider
+import com.tweener.firebase.firestore.toTimestamp
 import com.tweener.firebase.remoteconfig.datasource.RemoteConfigDataSource
 import com.vitoksmile.kmp.health.HealthDataType
 import com.vitoksmile.kmp.health.HealthManager
@@ -23,22 +25,27 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.datetime.Clock
+import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.atTime
+import kotlinx.datetime.minus
+import kotlinx.datetime.plus
 import kotlinx.serialization.json.Json
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import kotlin.random.Random
 import kotlin.time.Duration.Companion.days
 
 data class UiState(
     var user: User? = null,
     val isHealthManagerAvailable: Boolean,
     val isAuthorized: Boolean,
-    val stepsRecord: Map<String, Int>,
+    val stepsRecord: Map<String, StepsAndTicketsRecord>,
     val currentDaySteps: Int,
     val dailyTargetSteps: Int, // minimum daily target
     val currentReward: Int, // calculated reward tickets
@@ -50,7 +57,7 @@ class MainViewModel(
     private val firebaseGoogleAuthProvider: FirebaseGoogleAuthProvider
 ) : ViewModel(), KoinComponent {
     private val readTypes = listOf<HealthDataType>(HealthDataType.Steps)
-    private val writeTypes = emptyList<HealthDataType>()
+    private val writeTypes = listOf<HealthDataType>(HealthDataType.Steps)
     private val healthManager: HealthManager by inject()
 
     private val repository: MoveAppRepository by inject()
@@ -170,19 +177,17 @@ class MainViewModel(
 
         user?.let { u ->
             val todayStepCount = repository.getStepsForToday()
-            val targetStepsList = repository.getTargetConfigs()
-            val bucket = targetStepsList.find { todayStepCount in it.stepsMin..it.stepsMax }
-            val currentReward = bucket?.tickets ?: 0
-            val nextTarget = targetStepsList.indexOfFirst { todayStepCount < it.stepsMin }.let { index ->
-                if (index != -1) targetStepsList[index].stepsMin else bucket?.stepsMin ?: 0
-            }
+            val targetStepsList = repository.targetStepsList
+            val rewardAndNextTarget = repository.getTicketsEarnedForSteps(todayStepCount)
+            val currentReward = rewardAndNextTarget.first
+            val nextTarget = rewardAndNextTarget.second
 
             _uiState.emit(
                 _uiState.value.copy(
                     currentReward = currentReward,
                     currentDaySteps = todayStepCount,
                     dailyTargetSteps = nextTarget,
-                    stepTicketBucket = targetStepsList.map { item ->
+                    stepTicketBucket = targetStepsList.getValue().map { item ->
                         StepTicketBucketUiValues(
                             stepsMin = item.stepsMin.toThousandSeparatedString(),
                             stepsMax = item.stepsMax.toThousandSeparatedString(),
@@ -200,6 +205,8 @@ class MainViewModel(
             )
 
             repository.createOrUpdateStepsCollection(u, stepsMap)
+            val prevMap = repository.getPrevWeekStepsBeforeStartOfTheMonth()
+            repository.createOrUpdateStepsCollection(u, prevMap)
         }
     }
 
