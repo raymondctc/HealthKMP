@@ -69,14 +69,14 @@ fun TargetHeader(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Ticket(s) earned:", style = MaterialTheme.typography.labelLarge)
+                Text("Ticket(s) earned today:", style = MaterialTheme.typography.labelLarge)
                 Text(currentReward.toThousandSeparatedString(), style = MaterialTheme.typography.bodyLarge)
             }
             Row(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Total ticket(s) earned:", style = MaterialTheme.typography.labelLarge)
+                Text("Total ticket(s) earned in period:", style = MaterialTheme.typography.labelLarge)
                 Text(totalTickets.toThousandSeparatedString(), style = MaterialTheme.typography.bodyLarge)
             }
         }

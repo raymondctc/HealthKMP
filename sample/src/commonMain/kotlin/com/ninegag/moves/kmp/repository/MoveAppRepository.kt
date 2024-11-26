@@ -23,6 +23,7 @@ import com.ninegag.moves.kmp.Constants.Firestore
 import com.ninegag.moves.kmp.model.StepTicketBucket
 import com.ninegag.moves.kmp.model.StepsAndTicketsRecord
 import com.ninegag.moves.kmp.model.firestore.FirestoreMonthlyRank
+import com.ninegag.moves.kmp.utils.fromYYYYMMDDToMonthString
 import com.ninegag.moves.kmp.utils.suspendLazy
 import com.ninegag.moves.kmp.utils.toDailyStepsDateString
 import com.tweener.firebase.remoteconfig.datasource.RemoteConfigDataSource
@@ -196,9 +197,7 @@ class MoveAppRepository : KoinComponent {
         }
 
         val firstRecordKey = stepsMap.keys.first()
-        val indexOfLastHypthen = firstRecordKey.indexOfLast { it == '-' }
-
-        val monthString = firstRecordKey.substring(0, indexOfLastHypthen)
+        val monthString = firstRecordKey.fromYYYYMMDDToMonthString()
         val data = mapOf(
             Firestore.CollectionFields.USERNAME to user.name,
             Firestore.CollectionFields.EMAIL to user.email,
@@ -213,6 +212,7 @@ class MoveAppRepository : KoinComponent {
             data = data
         )
 
+        Napier.v { "@@@ data=${data}" }
     }
 
 

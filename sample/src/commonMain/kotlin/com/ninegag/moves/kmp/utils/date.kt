@@ -24,3 +24,8 @@ fun LocalDateTime.toDailyStepsDateString(): String {
 fun LocalDateTime.toMonthlyStepsDateString(): String {
     return "${year}-${monthNumber.toString().padStart(2, '0')}"
 }
+
+fun String.fromYYYYMMDDToMonthString(): String {
+    val indexOfLastHypthen = indexOfLast { it == '-' }
+    return substring(0, indexOfLastHypthen)
+}
