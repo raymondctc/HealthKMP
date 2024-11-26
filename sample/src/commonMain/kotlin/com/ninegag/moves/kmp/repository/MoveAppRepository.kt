@@ -87,10 +87,7 @@ class MoveAppRepository : KoinComponent {
     }
 
     private fun getToday(): LocalDateTime {
-        val now = Clock.System.now()
-        val tz = TimeZone.currentSystemDefault()
-        val localDateTime = now.toLocalDateTime(tz)
-        return localDateTime
+        return Clock.System.todayIn(tz).atStartOfDayIn(tz).toLocalDateTime(tz)
     }
 
     suspend fun getStepsForToday(): Int {
