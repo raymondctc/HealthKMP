@@ -3,20 +3,14 @@ package com.ninegag.moves.kmp
 import androidx.lifecycle.ViewModel
 import com.ninegag.moves.kmp.repository.MoveAppRepository
 import com.ninegag.moves.kmp.model.ChallengePeriod
-import com.ninegag.moves.kmp.model.StepTicketBucket
 import com.ninegag.moves.kmp.model.StepTicketBucketUiValues
 import com.ninegag.moves.kmp.model.StepsAndTicketsRecord
 import com.ninegag.moves.kmp.model.User
 import com.ninegag.moves.kmp.utils.numberOfDays
-import com.ninegag.moves.kmp.utils.toDailyStepsDateString
 import com.ninegag.moves.kmp.utils.toThousandSeparatedString
 import com.tweener.firebase.auth.provider.google.FirebaseGoogleAuthProvider
-import com.tweener.firebase.firestore.toTimestamp
-import com.tweener.firebase.remoteconfig.datasource.RemoteConfigDataSource
 import com.vitoksmile.kmp.health.HealthDataType
 import com.vitoksmile.kmp.health.HealthManager
-import com.vitoksmile.kmp.health.readSteps
-import com.vitoksmile.kmp.health.records.StepsRecord
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
@@ -25,21 +19,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.datetime.Clock
-import kotlinx.datetime.DatePeriod
-import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
-import kotlinx.datetime.atStartOfDayIn
-import kotlinx.datetime.atTime
-import kotlinx.datetime.minus
-import kotlinx.datetime.plus
-import kotlinx.serialization.json.Json
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import kotlin.random.Random
-import kotlin.time.Duration.Companion.days
 
 data class UiState(
     var user: User? = null,
@@ -205,7 +189,7 @@ class MainViewModel(
             )
 
             repository.createOrUpdateStepsCollection(u, stepsMap)
-            val prevMap = repository.getPrevWeekStepsBeforeStartOfTheMonth()
+            val prevMap = repository.getPrevMonthSteps()
             repository.createOrUpdateStepsCollection(u, prevMap)
         }
     }

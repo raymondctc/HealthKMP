@@ -25,15 +25,13 @@ import com.ninegag.moves.kmp.model.StepsAndTicketsRecord
 import com.ninegag.moves.kmp.model.firestore.FirestoreMonthlyRank
 import com.ninegag.moves.kmp.utils.suspendLazy
 import com.ninegag.moves.kmp.utils.toDailyStepsDateString
-import com.ninegag.moves.kmp.utils.toMonthlyStepsDateString
 import com.tweener.firebase.remoteconfig.datasource.RemoteConfigDataSource
 import com.vitoksmile.kmp.health.records.StepsRecord
-import kotlinx.coroutines.delay
-import kotlinx.datetime.DateTimePeriod
-import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.plus
+import kotlinx.datetime.minus
+import kotlinx.datetime.todayIn
 import kotlinx.serialization.json.Json
 import kotlin.random.Random
 
@@ -135,17 +133,19 @@ class MoveAppRepository : KoinComponent {
         return linkedHashMap
     }
 
-    suspend fun getPrevWeekStepsBeforeStartOfTheMonth(): Map<String, StepsAndTicketsRecord> {
+    suspend fun getPrevMonthSteps(): Map<String, StepsAndTicketsRecord> {
         val linkedHashMap = LinkedHashMap<String, StepsAndTicketsRecord>()
-        val localDateTime = getToday()
-        val startOfMonth = LocalDate(localDateTime.year, localDateTime.monthNumber, 1).atStartOfDayIn(tz)
-        val weekBeforeStartOfTheMonth = startOfMonth.minus(7.days)
 
-        val diff = startOfMonth.minus(weekBeforeStartOfTheMonth)
+        val today = Clock.System.todayIn(tz)
+        val previousMonth = today.minus(DatePeriod(months = 1))
+        val startOfPrevMonth = LocalDate(previousMonth.year, previousMonth.monthNumber, 1).atStartOfDayIn(tz)
+        val startOfMonth = LocalDate(today.year, today.monthNumber, 1).atStartOfDayIn(tz)
+
+        val diff = startOfMonth.minus(startOfPrevMonth)
         val daysDuration = diff.inWholeDays.days
 
-        for (i in 0 .. daysDuration.inWholeDays) {
-            val curr = weekBeforeStartOfTheMonth.plus(i.days).toLocalDateTime(tz)
+        for (i in 0 ..< daysDuration.inWholeDays) {
+            val curr = startOfPrevMonth.plus(i.days).toLocalDateTime(tz)
             val date = LocalDate(curr.year, curr.monthNumber, curr.dayOfMonth)
 
             val start = date.atStartOfDayIn(tz)
@@ -163,7 +163,6 @@ class MoveAppRepository : KoinComponent {
             )
 
         }
-
         return linkedHashMap
     }
 
@@ -191,7 +190,7 @@ class MoveAppRepository : KoinComponent {
             )
             createOrUpdateCollection<FirestoreDailyRank>(
                 collection = Firestore.Collections.STEPS,
-                documentId = "${user.email}/${Firestore.Collections.DAILY_STEPS}/$key",
+                documentId = "${Firestore.Collections.DAILY_STEPS}/$key/${user.email}",
                 data = data
             )
 
@@ -199,9 +198,10 @@ class MoveAppRepository : KoinComponent {
             monthToDateTickets += tickets
         }
 
-        val now = Clock.System.now()
-        val localDateTime = now.toLocalDateTime(tz)
-        val monthString = localDateTime.toMonthlyStepsDateString()
+        val firstRecordKey = stepsMap.keys.first()
+        val indexOfLastHypthen = firstRecordKey.indexOfLast { it == '-' }
+
+        val monthString = firstRecordKey.substring(0, indexOfLastHypthen)
         val data = mapOf(
             Firestore.CollectionFields.USERNAME to user.name,
             Firestore.CollectionFields.EMAIL to user.email,
@@ -212,9 +212,10 @@ class MoveAppRepository : KoinComponent {
 
         createOrUpdateCollection<FirestoreMonthlyRank>(
             collection = Firestore.Collections.STEPS,
-            documentId = "${user.email}/${Firestore.Collections.MONTHLY_STEPS}/$monthString",
+            documentId = "${Firestore.Collections.MONTHLY_STEPS}/$monthString/${user.email}",
             data = data
         )
+
     }
 
 
