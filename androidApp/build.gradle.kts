@@ -2,6 +2,24 @@
 
 import java.util.Properties
 
+val versionMajor = 1
+val versionMinor = 0
+val versionPatch = 1
+val isSnapshotVersion = false
+
+val versionNameGradle: String
+    get() {
+        val versionString = "${versionMajor}.${versionMinor}.${versionPatch}"
+
+        if (isSnapshotVersion) {
+            return "${versionString}-SNAPSHOT"
+        }
+        return versionString
+    }
+val versionCodeGradle: Int
+    get() {
+        return versionMajor * 10000 + versionMinor * 100 + versionPatch
+    }
 
 plugins {
     kotlin("multiplatform")
@@ -39,8 +57,8 @@ android {
         applicationId = "com.ninegag.moves.android.app"
         minSdk = (findProperty("android.minSdk") as String).toInt()
         targetSdk = (findProperty("android.targetSdk") as String).toInt()
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = versionCodeGradle
+        versionName = versionNameGradle
     }
 
     signingConfigs {
