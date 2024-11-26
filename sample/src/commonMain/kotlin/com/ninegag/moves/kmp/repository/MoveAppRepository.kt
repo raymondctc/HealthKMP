@@ -211,8 +211,6 @@ class MoveAppRepository : KoinComponent {
             documentId = "${Firestore.Collections.MONTHLY_STEPS}/$monthString/${user.email}",
             data = data
         )
-
-        Napier.v { "@@@ data=${data}" }
     }
 
 
