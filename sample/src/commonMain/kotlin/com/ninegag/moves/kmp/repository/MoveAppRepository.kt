@@ -87,16 +87,15 @@ class MoveAppRepository : KoinComponent {
         )
     }
 
-    private fun getToday(): LocalDateTime {
+    private fun getStartOfToday(): LocalDateTime {
         return Clock.System.todayIn(tz).atStartOfDayIn(tz).toLocalDateTime(tz)
     }
 
     suspend fun getStepsForToday(): Int {
-        val today = getToday()
-        val start = LocalDate(today.year, today.monthNumber, today.dayOfMonth).atStartOfDayIn(tz)
+        val start = getStartOfToday()
         val steps = healthManager.readSteps(
-            startTime = start,
-            endTime = today.toInstant(tz)
+            startTime = start.toInstant(tz),
+            endTime = Clock.System.now()
         )
 
         return steps.getOrDefault(emptyList()).sumOf { it.count }
@@ -104,7 +103,7 @@ class MoveAppRepository : KoinComponent {
 
     suspend fun getStepsFromStartOfMonthToToday(): Map<String, StepsAndTicketsRecord> {
         val linkedHashMap = LinkedHashMap<String, StepsAndTicketsRecord>()
-        val localDateTime = getToday()
+        val localDateTime = getStartOfToday()
         val startOfMonth = LocalDate(localDateTime.year, localDateTime.monthNumber, 1).atStartOfDayIn(tz)
         val diff = localDateTime.toInstant(tz).minus(startOfMonth)
         val daysDuration = diff.inWholeDays.days
@@ -142,7 +141,7 @@ class MoveAppRepository : KoinComponent {
         val diff = startOfMonth.minus(startOfPrevMonth)
         val daysDuration = diff.inWholeDays.days
 
-        for (i in 0 ..< daysDuration.inWholeDays) {
+        for (i in 0..daysDuration.inWholeDays) {
             val curr = startOfPrevMonth.plus(i.days).toLocalDateTime(tz)
             val date = LocalDate(curr.year, curr.monthNumber, curr.dayOfMonth)
 
@@ -179,18 +178,18 @@ class MoveAppRepository : KoinComponent {
         for ((key, value) in stepsMap) {
             val steps = value.steps
             val tickets = value.tickets
-            val data = mapOf(
-                Firestore.CollectionFields.USERNAME to user.name,
-                Firestore.CollectionFields.EMAIL to user.email,
-                Firestore.CollectionFields.AVATAR_URL to user.avatarUrl,
-                Firestore.CollectionFields.STEPS to steps,
-                Firestore.CollectionFields.TICKETS to tickets
-            )
-            createOrUpdateCollection<FirestoreDailyRank>(
-                collection = Firestore.Collections.STEPS,
-                documentId = "${Firestore.Collections.DAILY_STEPS}/$key/${user.email}",
-                data = data
-            )
+//            val data = mapOf(
+//                Firestore.CollectionFields.USERNAME to user.name,
+//                Firestore.CollectionFields.EMAIL to user.email,
+//                Firestore.CollectionFields.AVATAR_URL to user.avatarUrl,
+//                Firestore.CollectionFields.STEPS to steps,
+//                Firestore.CollectionFields.TICKETS to tickets
+//            )
+//            createOrUpdateCollection<FirestoreDailyRank>(
+//                collection = Firestore.Collections.STEPS,
+//                documentId = "${Firestore.Collections.DAILY_STEPS}/$key/${user.email}",
+//                data = data
+//            )
 
             monthToDateSteps += steps
             monthToDateTickets += tickets
