@@ -57,7 +57,7 @@ class MainViewModel(
     private val firebaseGoogleAuthProvider: FirebaseGoogleAuthProvider
 ) : ViewModel(), KoinComponent {
     private val readTypes = listOf<HealthDataType>(HealthDataType.Steps)
-    private val writeTypes = listOf<HealthDataType>(HealthDataType.Steps)
+    private val writeTypes = emptyList<HealthDataType>()
     private val healthManager: HealthManager by inject()
 
     private val repository: MoveAppRepository by inject()
