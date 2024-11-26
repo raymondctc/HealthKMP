@@ -132,12 +132,12 @@ android {
         coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.2")
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_18
+        targetCompatibility = JavaVersion.VERSION_18
         isCoreLibraryDesugaringEnabled = true
     }
     kotlin {
-        jvmToolchain(17)
+        jvmToolchain(18)
     }
 }
 dependencies {
