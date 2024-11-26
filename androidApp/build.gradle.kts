@@ -4,7 +4,7 @@ import java.util.Properties
 
 val versionMajor = 1
 val versionMinor = 0
-val versionPatch = 2
+val versionPatch = 3
 val isSnapshotVersion = false
 
 val versionNameGradle: String
